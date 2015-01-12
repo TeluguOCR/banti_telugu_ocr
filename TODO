@@ -1,0 +1,5 @@
+#TODO
+
+1) Make unicodes.ast (regardless of mallicodes or alphacodes choice)
+2) Generate reverse lists for mallicodes and alphacodes.
+3) Clean up test_n_draw
