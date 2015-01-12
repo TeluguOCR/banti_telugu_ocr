@@ -1,0 +1,12 @@
+{
+'type': "Relative",
+'HEIGHT' : 42,
+'WIDTH' : 42,
+'XHEIGHT' : 35,
+'HT_MARGIN': 3,
+'WD_MARGIN' : 3,
+
+## Calculated
+#'TOTHT' : 48 # HEIGHT + HT_MARGIN + HT_MARGIN
+#'TOTWD' : 48 # WIDTH + WD_MARGIN + WD_MARGIN
+}

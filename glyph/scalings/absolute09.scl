@@ -1,0 +1,20 @@
+{
+    'type': "Absolute",
+
+    'NMTOP': 4,
+    'NMXHT': 24,
+    'NMBOT': 4,
+
+    'NMXWD': 30,
+    'NMWID': 32,
+
+    'BUFLEFT': 0,
+    'BUFTOP': 0,
+    'BUFBOT': 0,
+    'SCALE_BY_TOP_BOTTOM_TOO': False,
+
+## Calculated
+#    'NMHIT': 32     # NMTOP+NMXHT+NMBOT
+#    'TOTWD': 32    # NMWID+BUFLEFT
+#    'TOTHT': 32    # NMHIT+BUFTOP+BUFBOT
+}

@@ -1,0 +1,23 @@
+# NM for normalized
+{
+    'type': "Absolute",
+
+    'NMTOP': 20,
+    'NMXHT': 20,
+    'NMBOT': 20,
+
+    'NMXWD': 20,
+    'NMWID' : 60,  # 3* NMXWD
+
+    'BUFLEFT': 8,
+    'BUFTOP': 4,
+    'BUFBOT': 4,
+
+    'SCALE_BY_TOP_BOTTOM_TOO': True,
+
+
+## Optional (Re-calcualted in program)
+#    'NMHIT': 60,  # NMTOP + NMXHT + NMBOT
+#    'TOTWD': 68,  # NMWID + BUFLEFT
+#    'TOTHT': 68,  # NMHIT + BUFTOP + BUFBOT
+}
