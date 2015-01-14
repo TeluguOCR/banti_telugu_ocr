@@ -27,7 +27,7 @@ import theano
 from PIL import Image
 
 from theanet.neuralnet import NeuralNet
-from lookup import iast2uni
+from iast_unicodes import iast2uni
 
 raise NotImplementedError, "Not a working version, needs to be fixed and tested"
 # ############################################# Helpers

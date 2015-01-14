@@ -7,7 +7,7 @@ import sys
 import numpy as np
 from glyph.bantireader import BantiReader
 from theanet.neuralnet import NeuralNet
-from lookup import iast2uni
+from iast_unicodes import iast2uni
 
 ############################################# Arguments
 
