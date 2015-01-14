@@ -16,16 +16,19 @@ class Glyph(object):
     def fromSixPack(cls, str_entry):
         obj = cls()
         entries = str_entry.split()
-        obj.ID = entries.pop(0)
-        obj.x = int(entries.pop(0))
-        obj.y = int(entries.pop(0))
-        obj.wd = int(entries.pop(0))
-        obj.ht = int(entries.pop(0))
-        obj.baseline = int(entries.pop(0))
-        obj.topline = int(entries.pop(0))
-        obj.linenum = int(entries.pop(0))
-        obj.wordnum = int(entries.pop(0))
-        obj.sixpack = entries.pop(0)
+        try:
+            obj.ID = entries.pop(0)
+            obj.x = int(entries.pop(0))
+            obj.y = int(entries.pop(0))
+            obj.wd = int(entries.pop(0))
+            obj.ht = int(entries.pop(0))
+            obj.baseline = int(entries.pop(0))
+            obj.topline = int(entries.pop(0))
+            obj.linenum = int(entries.pop(0))
+            obj.wordnum = int(entries.pop(0))
+            obj.sixpack = entries.pop(0)
+        except IndexError:
+            return None
 
         # Diff top & Diff bottom
         obj.dtop = obj.y - obj.topline

@@ -18,6 +18,10 @@ class BantiReader(object):
         isample = 0
         for glp_entry in self.banti_file.split('\n'):
             glp = Glyph.fromSixPack(glp_entry)
+            if glp is None:
+                print('Malformed entry : ', glp_entry)
+                continue
+
             scaled_glp = self.scaler(glp)
             ret_data.append(scaled_glp)
             ret_meta.append((glp.linenum, glp.wordnum, glp.dtop, glp.dbot))
