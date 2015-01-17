@@ -7,7 +7,7 @@ import sys
 import numpy as np
 from glyph.bantireader import BantiReader
 from theanet.neuralnet import NeuralNet
-from iast_unicodes import iast2uni
+from iast_unicodes import get_index_to_char_converter
 
 ############################################# Arguments
 
@@ -31,6 +31,7 @@ with open(nnet_prms_file_name, 'rb') as nnet_prms_file:
 
 with open(labelings_file_name, 'r') as labels_fp:
     labellings = ast.literal_eval(labels_fp.read())
+index_to_char = get_index_to_char_converter(labellings)
 
 ############################################# Init Network
 gg = BantiReader(banti_file_name, scaler_prms)
@@ -62,16 +63,6 @@ for nsamples, metas, data in gg():
 
 
 ############################################# Helpers
-reverse_labels = dict((v, k) for k, v in labellings.items())
-
-
-def index_to_char(index):
-    try:
-        return iast2uni[reverse_labels[index]]
-    except KeyError:
-        print('Failed to index to character ', index, reverse_labels[index])
-        return '#'
-
 
 def get_best_n(logprobab, n=5):
     topn = np.argsort(logprobab)[:-1 - n:-1]

@@ -189,3 +189,16 @@ iast2uni = {
 'du': 'దు', 'śō': 'శో', 'hau': 'హౌ', 'ḍe': 'డె', ',': ',', 
 'dhē': 'ధే', 'pha': 'ఫ', 'jhū': 'ఝూ', 'ya': 'య', '+da': '్ద', 
 'ṇū': 'ణూ'}
+
+
+def get_index_to_char_converter(labellings):
+    reverse_labels = dict((v, k) for k, v in labellings.items())
+
+    def index_to_char(i):
+        try:
+            return iast2uni[reverse_labels[i]]
+        except KeyError:
+            print('Failed to index to character ', i, reverse_labels[i])
+            return '#'
+
+    return index_to_char
