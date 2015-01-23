@@ -114,22 +114,25 @@ for i in range(n_trin_bth):
                 (index, rank_of_truth, prob_of_truth, prob_of_first))
 
     if i % 20 == 0:
-        print('{} of {} batches done'.format(i + 1, n_trin_bth))
+        cum_err_rate = sum(wrongs.values())*100./sum(counts.values())
+        print('{} of {} batches. Error {:.2f}%'.format(
+            i + 1, n_trin_bth, cum_err_rate))
         #if i == 100: break
 
 ####################### HTML strings
 
 head = '''<!DOCTYPE html>
 <html><head><meta charset="UTF-8"></head> 
-<body><h1>Errors for file {} using the parameters {}</h1>
-</br>#) &lt;glyph>:(&lt;wrongs> of &lt;tested> = &lt;error%>)
-</br>&lt;recognized_as>&lt;culprit_image>(rank, truth's probability% vs max's
-probability%) ...repeat...
-'''.format(x_data_file, neural_net_file)
+<body><h2>Errors for file {} using the parameters {}</h2>
+<h2>Cumulative error rate: {:.2f}</h2>
+<h2>Network</h2> <pre>{}</pre>
+</br>N) Character_Shown:(wrongs of tested = error%)
+</br> Character_Seen Image_Shown(rank, truth's prob% vs max's prob%)...
+'''.format(x_data_file, neural_net_file, cum_err_rate, ntwk)
 filler_main = '\n</br><p> {}) {} ({} of {} = {:.2f}%)</p>'
 filler_sub = '\n</br>{}'
-filler_img = '\n<img src="data:image/png;base64,{}" title=""/> ' \
-             '({} {} - {}, {} vs. {} )'
+filler_img = '\n<img src="data:image/png;base64,{0}" title="{1} {2}"/> ' \
+             '({3}, {4} vs. {5} )'
 tail = '\n</body></html>'
 
 
