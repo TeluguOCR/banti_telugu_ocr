@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
-from glyph import Glyph
-from scaler import ScalerFactory
+from glyph.glyph import Glyph
+from glyph.scaler import ScalerFactory
 
 
 class BantiReader(object):

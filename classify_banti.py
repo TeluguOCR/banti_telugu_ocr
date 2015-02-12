@@ -13,7 +13,9 @@ from iast_unicodes import get_index_to_char_converter
 
 if len(sys.argv) < 2:
     print("""Usage:
-    {} neuralnet_params.pkl banti_output.box scaler_params.scl codes.lbl
+    {0} neuralnet_params.pkl banti_output.box scaler_params.scl codes.lbl
+    e.g:- {0} cnn_softaux_gold.pkl sample_images/praasa.box ...
+                    glyph/scalings/relative48.scl glyph/labelings/alphacodes.lbl
     """.format(sys.argv[0]))
     sys.exit()
 
@@ -29,8 +31,10 @@ with open(scaler_prms_file, 'r') as sfp:
 with open(nnet_prms_file_name, 'rb') as nnet_prms_file:
     nnet_prms = pickle.load(nnet_prms_file)
 
-with open(labelings_file_name, 'r') as labels_fp:
+with open(labelings_file_name, encoding='utf-8') as labels_fp:
     labellings = ast.literal_eval(labels_fp.read())
+
+# print(labellings)
 index_to_char = get_index_to_char_converter(labellings)
 
 ############################################# Init Network
@@ -59,7 +63,7 @@ for nsamples, metas, data in gg():
         else:
             logprobs_or_feats, preds = tester(img)
 
-        output.append((line, word, preds, logprobs_or_feats))
+        output.append((line, word, preds[0], logprobs_or_feats[0]))
 
 
 ############################################# Helpers
@@ -90,11 +94,62 @@ for line, word, pred, logprob in output:
         wordnum += 1
         print(wordnum, end=' ')
 
-    best_match += index_to_char(pred[0])
-    stats += get_best_n(logprob[0])
+    best_match += index_to_char(pred)
+    stats += get_best_n(logprob)
+
+print()
 
 ############################################# Write to text file
 out_file_name = banti_file_name.replace('.box', '.txt')
-print('Writing out put to ', out_file_name)
-with open(out_file_name, 'w') as out_file:
-    out_file.write(best_match + stats)
+print('Writing output to ', out_file_name)
+with open(out_file_name, 'w', encoding='utf-8') as out_file:
+    out_file.write(best_match)
+
+out_file_name = banti_file_name.replace('.box', '.matches')
+print('Writing matches to ', out_file_name)
+with open(out_file_name, 'w', encoding='utf-8') as out_file:
+    out_file.write(stats)
+
+
+####################################################### Try N-gram
+nclasses = output[-1][-1].size
+chars = [index_to_char(i) for i in range(nclasses)]
+
+import ngram.path as path
+from ngram.bantry import Bantry, process_line_bantires
+
+path.priorer.set_trigram("ngram/eemaata.txt.trigram")
+
+curr_line = 0
+line_bantries = []
+decency = -np.log(nclasses)
+
+out_file_name = banti_file_name.replace('.box', '.gram.txt')
+print('Writing ngrammed output to ', out_file_name)
+ngramout = open(out_file_name, 'w', encoding='utf-8')
+
+
+for line, word, preds, logprobs in output:
+    if line < curr_line:
+        raise (ValueError, "Line number can not go down {}->{}".format(
+            curr_line, line))
+
+    decent = logprobs > decency
+    mychars = [chars[i] for i, ok in enumerate(decent) if ok]
+    print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', sum(decent))
+    e = Bantry(line, word, zip(mychars, logprobs[decent]))
+
+    if line == curr_line:
+        line_bantries.append(e)
+
+    else:
+        processed = process_line_bantires(line_bantries)
+        ngramout.write(processed)
+
+        line_bantries = [e]
+        curr_line = line
+
+processed = process_line_bantires(line_bantries)
+ngramout.write(processed)
+
+ngramout.close()

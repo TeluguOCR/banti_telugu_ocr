@@ -2,8 +2,8 @@
 Add new scalers to this file both as imports and in the dictionary!
 """
 
-from scaler_absolute import Absolute
-from scaler_relative import Relative
+from glyph.scaler_absolute import Absolute
+from glyph.scaler_relative import Relative
 
 scalers_dict = {
     "Absolute":Absolute,

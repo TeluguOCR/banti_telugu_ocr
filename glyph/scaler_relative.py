@@ -1,5 +1,5 @@
 from PIL import Image
-from glyph import Glyph
+from glyph.glyph import Glyph
 
 
 class Bunch(object):

@@ -199,6 +199,7 @@ def get_index_to_char_converter(labellings):
             return iast2uni[reverse_labels[i]]
         except KeyError:
             print('Failed to index to character ', i, reverse_labels[i])
+            raise KeyError
             return '#'
 
     return index_to_char
