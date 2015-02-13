@@ -9,7 +9,6 @@
     break it up in to pieces. E.g:- the letter స is broken in to a ✓ and
     a bottom part represented as స again.
 """
-from __future__ import print_function
 import re
 
 VATTU_HAVERS = 'ఖఘఛఝటఢథధఫభ'  # unused
@@ -96,11 +95,8 @@ def process_line(line):
     """The main function of this module; Used to parse one chunk of Telugu text
     """
     glps = []
-    print("Line:", line)
     for a in aksh_pattern.finditer(line):
-        print(a.group())
         glps += process_akshara(a.group())
-    print("Glps: ", glps)
     return glps
 
 

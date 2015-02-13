@@ -11,11 +11,10 @@ from iast_unicodes import get_index_to_char_converter
 
 ############################################# Arguments
 
-if len(sys.argv) < 2:
+if len(sys.argv) < 5:
     print("""Usage:
-    {0} neuralnet_params.pkl banti_output.box scaler_params.scl codes.lbl
-    e.g:- {0} cnn_softaux_gold.pkl sample_images/praasa.box ...
-                    glyph/scalings/relative48.scl glyph/labelings/alphacodes.lbl
+    {0} neuralnet_params.pkl banti_output.box scaler_params.scl codes.lbl [gram.tri.pkl="ngram/eemaata.tri.pkl"]
+    e.g:- {0} cnn_softaux_gold.pkl sample_images/praasa.box glyph/scalings/relative48.scl glyph/labelings/alphacodes.lbl
     """.format(sys.argv[0]))
     sys.exit()
 
@@ -23,8 +22,14 @@ nnet_prms_file_name = sys.argv[1]
 banti_file_name = sys.argv[2]
 scaler_prms_file = sys.argv[3]
 labelings_file_name = sys.argv[4]
+try:
+    trigram_file = sys.argv[5]
+except IndexError:
+    trigram_file = "ngram/eemaata.tri.pkl"
+
 
 ############################################# Load Params
+
 with open(scaler_prms_file, 'r') as sfp:
     scaler_prms = ast.literal_eval(sfp.read())
 
@@ -117,8 +122,9 @@ chars = [index_to_char(i) for i in range(nclasses)]
 
 import ngram.path as path
 from ngram.bantry import Bantry, process_line_bantires
+from ngram.post_process import post_process
 
-path.priorer.set_trigram("ngram/eemaata.txt.trigram")
+path.priorer.set_trigram(trigram_file)
 
 curr_line = 0
 line_bantries = []
@@ -136,7 +142,6 @@ for line, word, preds, logprobs in output:
 
     decent = logprobs > decency
     mychars = [chars[i] for i, ok in enumerate(decent) if ok]
-    print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', sum(decent))
     e = Bantry(line, word, zip(mychars, logprobs[decent]))
 
     if line == curr_line:
@@ -144,12 +149,12 @@ for line, word, preds, logprobs in output:
 
     else:
         processed = process_line_bantires(line_bantries)
-        ngramout.write(processed)
+        ngramout.write(post_process(processed))
 
         line_bantries = [e]
         curr_line = line
 
 processed = process_line_bantires(line_bantries)
-ngramout.write(processed)
+ngramout.write(post_process(processed))
 
 ngramout.close()

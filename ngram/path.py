@@ -22,29 +22,25 @@ class _Prior():
     def set_trigram(self, pklfile):
         with open(pklfile, 'rb') as fp:
             self.tricount = pickle.load(fp)
-        print(type(self.tricount))
-
 
     def __call__(self, chars):
         """ Look up the trigram matrix to get probability of the a sequence of
             one, two or three given glyphs
             TODO : Do better smoothing based on unigram and bigram frequencies
         """
-        if len(chars) < 2:
-            return 0
-
         if self.tricount is None:
             raise ValueError("Trigram not set")
 
-        s = chars[-3] if len(chars) > 2 else ' '
+        if len(chars) < 2:
+            return 0
+
+        a = chars[-3] if len(chars) > 2 else ' '
         try:
-            val = self.tricount[s][chars[-2]][chars[-1]]
-            if val:
-                print('Found: {} : {}'.format(''.join(chars[-3:]), val))
+            val = self.tricount[a][chars[-2]][chars[-1]]
+            # print('Found: {} : {}'.format(''.join(chars[-3:]), val))
         except KeyError:
             val = 0
-            print("Not found {}".format(''.join(chars[-3:])))
-            # raise KeyError("Not found {}".format(''.join(chars[-3:])))
+            # print("Not found {}".format(''.join(chars[-3:])))
 
         return np.log(1e-6 + val)
 
@@ -130,6 +126,6 @@ class Paths():
                                 reverse=True)
 
     def print_top(self, n=3):
+        print("Top", n, "candidates")
         for i in range(min(len(self.paths), n)):
             print(str(self.paths[i]))
-        print('-'*n)

@@ -59,13 +59,13 @@ from .path import Paths
 def process_line_bantires(line_bantries):
     mypaths = Paths(81)
     iword = line_bantries[0].word
+
     for entry in line_bantries:
         if entry.word > iword:
             iword = entry.word
             mypaths.simple_update(' ')
         mypaths.update(entry.liklies)
-        #print('Added ', entry.liklies)
-        mypaths.print_top()
+
     mypaths.simple_update(' ', True)
     mypaths.print_top(1)
     return mypaths.paths[0].text()+'\n'

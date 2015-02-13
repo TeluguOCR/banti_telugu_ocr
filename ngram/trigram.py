@@ -9,24 +9,27 @@
 """
 import sys
 from unicode2labels import process_line
+import pickle
 
 if len(sys.argv) < 2:
     print("""Usage:
-        {0} input_text_file [show_trigram]
+        {0} input_text_file
     Program counts the frequency of each Telugu letter following another and 
-    writes out a binary <input_text_file>.bigram using pickle.
-    show_trigram when supplied, a text file with the bigram is shown.
+    writes out a binary <input_text_file>.tri.pkl using pickle.
     """.format(sys.argv[0]))
     sys.exit()
 
-beg_line, end_line = '$', '$'
+txt_file_name = sys.argv[1]
+txt_file_head = txt_file_name[:-4] if txt_file_name.endswith('.txt') \
+    else txt_file_name
 
-# Build the dictionaries
-tel_dump = open(sys.argv[1])
+############################################# Build the dictionaries
+corpus = open(txt_file_name)
 
+beg_line, end_line = ' ', ' '
 tridict = {}
 iline = 0
-for line in tel_dump:
+for line in corpus:
     line = beg_line + line.rstrip() + end_line
     glyps = process_line(line)
 
@@ -49,26 +52,34 @@ for line in tel_dump:
     if iline%1000 == 0:
         print(iline)
 
-tel_dump.close()
+corpus.close()
 
-# Dump Pickle
-import pickle
-with open(sys.argv[1]+'.trigram', 'wb') as f:
+############################################## Normalize
+for a in tridict:
+    for b in tridict[a]:
+        total = sum(tridict[a][b].values())
+        for c in tridict[a][b]:
+            tridict[a][b][c] /= total
+
+
+############################################## Dump Pickle
+with open(txt_file_head+'.tri.pkl', 'wb') as f:
     pickle.dump(dict(tridict), f)
 
-# Dump  txt
-if len(sys.argv) < 3:
-    sys.exit()
 
-fout = open('/tmp/trigram.txt', 'w')  
-for k1, dd in sorted(tridict.items(), key=lambda x: x[0]):
-    for k2, d in sorted(dd.items(), key=lambda x: x[0]):
-        for k3, count in sorted(d.items(), key=lambda x: x[0]):
-            fout.write('\n'+k1+":"+k2+":"+k3+":"+str(count))
-        fout.write('\n.......')
-    fout.write('\n\n............................................')
+############################################## Dump  txt
+def sort(dic):
+    return sorted(dic.items(),  key=lambda x: x[0])
+
+fout = open(txt_file_head+'.tri.txt', 'w')
+
+for a, dd in sort(tridict):
+    fout.write('\n\n{} {}: {}'.format('#'*60, a, len(dd)))
+
+    for b, d in sort(dd):
+        fout.write('\n{} {} {}: {}'.format('-'*30, a, b, len(d)))
+
+        for c, count in sort(d):
+            fout.write('\n{} {} {} : {:8.6f}'.format(a, b, c, count))
+
 fout.close()
-
-# Show
-import os
-os.system('gedit /tmp/trigram.txt &')
