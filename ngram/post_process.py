@@ -4,24 +4,58 @@ TWO_PIECERS = 'ఘపఫషసహ'
 aksh_pattern = re.compile(r"([ఁ-ఔృౄ])|( )|(([క-హ]్)*[క-హ][ా-ూె-ౌ])|"
                           r"(([క-హ]్)*[క-హ](?![ా-ూె-్]))|(([క-హ]్)+(?=\s))")
 
+
 def post_process(content):
-    """
-    TODO:
-        ౦) ర వత్తులు కుదుర్చు
-        ౧) Attach ఘపఫషసహ with ✓ ి  ీ  ె  ే  ్
-        ౨) కె, ై  ఉంటే వాటిని కై గా మార్చు
-        ౩) ఘొ ఘో లు
-        ౪) ఏఎ ని ఏ గా మార్చు
-        ౫) సున్నాలు సరిజూఁడు
-        ౬) సంయుక్తాలను అమర్చు
-    """
-    content = re.sub(r'్ర౧', r'్ర', content)
-    content = re.sub(r'([ిీెే])([ఘపఫషసహ])', r'\2\1', content)
-    content = re.sub(r'([✓])([ఘపఫషసహ])', r'\2', content)
-    content = re.sub(r'([క-హ])ె ై', r'\1ై', content)
-    content = re.sub(r'ఏఎ', r'ఏ', content)
-    content = re.sub(r'([ఁ-ౌ])[0౦]', r'\1ం', content)
-    for _ in 0, 0:
-        content = re.sub(r'([ా-ూె-్])(్[క-హ‍])', r'\2\1', content)
+    rules = [
+        # ౦) ర వత్తులు కుదుర్చు
+        (r'్ర౧', r'్ర'),
+
+        # ౧) Attach ఘపఫషసహ with ✓ ి  ీ  ె  ే  ్
+        (r'([ిీెే్])([ఘపఫషసహ])', r'\2\1'),
+        (r'([✓])([ఘపఫషసహ])', r'\2'),
+
+        # ౨) కె, ై  ఉంటే వాటిని కై గా మార్చు
+        (r'([క-హ])ెై', r'\1ై'),
+
+        # ౩) ఘొ ఘో లు
+        (r'ెఘా', r'ఘో'),
+        (r'ెఘు', r'ఘొ'),
+
+        # ౪) ఏఎ ని ఏ గా మార్చు
+        (r'ఏఎ', r'ఏ'),
+
+        # ౫) సున్నాలు సరిజూఁడు
+        (r'([ఁ-ౌ])[0౦]', r'\1ం'),
+
+        # ౬) సంయుక్తాలను అమర్చు
+        (r'([ా-ూె-్])(్[క-హ‍])', r'\2\1'),
+        (r'([ా-ూె-్])(్[క-హ‍])', r'\2\1'),
+    ]
+
+    for find, replace in rules:
+        content = re.sub(find, replace, content)
 
     return content
+
+
+def impossible(chars):
+    """
+    Is a given sequence of labels impossible.
+    eg:- ఏ followed by anything but an ఎ
+    :param chars:
+    :return: boolean True if seq is impossible
+    """
+
+    if len(chars) < 2:
+        return False
+
+    should_follow = [
+        ('ఏ', 'ఎ'),
+        ('✓ిీెే్', 'ఘపఫషసహ'),
+    ]
+
+    for x, y in should_follow:
+        if chars[0] in x and not chars[1] in y:
+            return True
+
+    return False

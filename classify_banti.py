@@ -8,14 +8,19 @@ import numpy as np
 from glyph.bantireader import BantiReader
 from theanet.neuralnet import NeuralNet
 from iast_unicodes import get_index_to_char_converter
+import ngram.path as path
+from ngram.bantry import Bantry, process_line_bantires
+from ngram.post_process import post_process
 
 ############################################# Arguments
 
 if len(sys.argv) < 5:
-    print("""Usage:
-    {0} neuralnet_params.pkl banti_output.box scaler_params.scl codes.lbl [gram.tri.pkl="ngram/eemaata.tri.pkl"]
-    e.g:- {0} cnn_softaux_gold.pkl sample_images/praasa.box glyph/scalings/relative48.scl glyph/labelings/alphacodes.lbl
-    """.format(sys.argv[0]))
+    print("Usage:"
+    "\n{0} neuralnet_params.pkl banti_output.box scaler_params.scl codes.lbl "
+    "[gram.tri.pkl='ngram/eemaata.tri.pkl']"
+    "\n\te.g:- {0} cnn_softaux_gold.pkl sample_images/praasa.box "
+    "glyph/scalings/relative48.scl glyph/labelings/alphacodes.lbl"
+    "".format(sys.argv[0]))
     sys.exit()
 
 nnet_prms_file_name = sys.argv[1]
@@ -108,7 +113,7 @@ print()
 out_file_name = banti_file_name.replace('.box', '.txt')
 print('Writing output to ', out_file_name)
 with open(out_file_name, 'w', encoding='utf-8') as out_file:
-    out_file.write(best_match)
+    out_file.write(post_process(best_match))
 
 out_file_name = banti_file_name.replace('.box', '.matches')
 print('Writing matches to ', out_file_name)
@@ -119,10 +124,6 @@ with open(out_file_name, 'w', encoding='utf-8') as out_file:
 ####################################################### Try N-gram
 nclasses = output[-1][-1].size
 chars = [index_to_char(i) for i in range(nclasses)]
-
-import ngram.path as path
-from ngram.bantry import Bantry, process_line_bantires
-from ngram.post_process import post_process
 
 path.priorer.set_trigram(trigram_file)
 
