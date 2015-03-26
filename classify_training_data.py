@@ -18,7 +18,7 @@ import ast
 import base64
 import os
 import pickle
-import StringIO
+import io
 import sys
 from collections import defaultdict
 
@@ -32,10 +32,13 @@ from iast_unicodes import get_index_to_char_converter
 ############################################## Helpers
 
 
-def load_data(path2data):
-    import bz2, json, contextlib
-    with contextlib.closing(bz2.BZ2File(path2data, 'rb')) as f:
-        return np.array(json.load(f))
+
+def read_json_bz2(path2data):
+    import bz2, json
+    bz2_fp = bz2.BZ2File(path2data, 'r')
+    data = np.array(json.loads(bz2_fp.read().decode('utf-8')))
+    bz2_fp.close()
+    return data
 
 
 def share(data, dtype=theano.config.floatX):
@@ -71,19 +74,19 @@ index_to_char = get_index_to_char_converter(labellings)
 
 ############################################## Load Data
 print("Loading data files...")
-x_data = load_data(x_data_file)
-y_data = load_data(y_data_file)
-meta_data = load_data(meta_file)
+x_data = read_json_bz2(x_data_file)
+y_data = read_json_bz2(y_data_file)
+meta_data = read_json_bz2(meta_file)
 x = share(x_data)
 y = share(y_data, 'int32')
 if aux_data_file:
-    aux = share(load_data(aux_data_file))
+    aux = share(read_json_bz2(aux_data_file))
 else:
     aux = None
 
 n_trin = x_data.shape[0]
 batch_sz = net_prms['training_params']['BATCH_SZ']
-n_trin_bth = n_trin / batch_sz
+n_trin_bth = n_trin // batch_sz
 n_classes = y_data.max()
 
 ############################################## Compile Test Function
@@ -157,11 +160,11 @@ for i in range(n_classes):
 
         for entry, rank_of_truth, prob_truth, prob_max in v:
             img = Image.fromarray(255 * (1-x_data[entry]))
-            buf = StringIO.StringIO()
+            buf = io.BytesIO()
             img.save(buf, format='BMP')
             im64 = base64.b64encode(buf.getvalue())
 
-            out_file.write(filler_img.format(im64,
+            out_file.write(filler_img.format(im64.decode("ascii"),
                                              meta_data[entry][0],
                                              meta_data[entry][1],
                                              rank_of_truth,

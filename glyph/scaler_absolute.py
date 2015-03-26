@@ -41,7 +41,7 @@ class Absolute:
 
         # Find where the image should be moved
         #   (centered and adjusted to baseline)
-        move2x = 0 if new_wd >= p.NMXWD else (p.NMXWD - new_wd) / 2
+        move2x = 0 if new_wd >= p.NMXWD else (p.NMXWD - new_wd) // 2
         scaldb = int(scale * glp.dbot)
         move2y = p.NMTOP + p.NMXHT - (new_ht - scaldb)
 

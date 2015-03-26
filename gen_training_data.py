@@ -1,21 +1,20 @@
 #! /usr/bin/python
 # -*- coding: utf-8 -*-
-from __future__ import print_function
 import ast
+import bz2
+import json
+import numpy as np
 import os
 import re
 import sys
 import tarfile
-import bz2
-import json
-import contextlib
-from collections import defaultdict
-from random import choice
 
-import numpy as np
+from random import choice
+from collections import defaultdict
 from PIL import Image
-from glyph import Glyph
-from scaler import ScalerFactory
+
+from glyph.glyph import Glyph
+from glyph.scaler import ScalerFactory
 
 ################################### Process Files & Dirs #####################
 
@@ -28,7 +27,7 @@ def split_file_name(file_path):
         font = m.group(1)
         style = m.group(2)
         id_ = m.group(3)
-        dtbs = map(int, m.group(4).split('_')[1:])
+        dtbs = list(map(int, m.group(4).split('_')[1:]))
         dtbpairs = [(dtbs[i], dtbs[i+1]) for i in range(0, len(dtbs), 2)]
         return font, style, id_, dtbpairs
 
@@ -57,25 +56,25 @@ class GlyphDir(object):
         self.default_getter = default_sampler
 
     def get_all(self, ):
-        for font_style, glyph_list in self.glyphs.items():
+        for font_style, glyph_list in list(self.glyphs.items()):
             for glyph in glyph_list:
                 for dtop, dbot in glyph.dtopbot:
                     yield (self.scaler(Glyph.fromImg(glyph.img, dtop, dbot)),
                            font_style)
 
     def get_one_per_file(self, ):
-        for font_style, glyph_list in self.glyphs.items():
+        for font_style, glyph_list in list(self.glyphs.items()):
             for glyph in glyph_list:
                 dtop, dbot = choice(glyph.dtopbot)
                 yield (self.scaler(Glyph.fromImg(glyph.img, dtop, dbot)),
                        font_style)
 
     def get_one_per_style(self, ):
-        for font_style, glyph_list in self.glyphs.items():
+        for font_style, glyph_list in list(self.glyphs.items()):
             yield (self.scaler(choice(glyph_list)), font_style)
 
     def get_relative(self, ):
-        for font_style, glyph_list in self.glyphs.items():
+        for font_style, glyph_list in list(self.glyphs.items()):
             scaled_glyph = None
             scaled_dtopbots = []
 
@@ -155,9 +154,12 @@ def extract_tar(tar_name, target_dir):
 def save_bz2(file_name, variable):
     if not file_name.endswith('.bz2'):
         file_name += '.bz2'
+
     print("Saving ", file_name)
-    with contextlib.closing(bz2.BZ2File(file_name, 'wb')) as f:
-        json.dump(variable, f)
+    bz2_file = bz2.BZ2File(file_name, 'wb')
+    bz2_file.write(json.dumps(variable).encode('utf-8'))
+    bz2_file.close()
+
 
 ################################# MAIN #################################
 
@@ -229,5 +231,6 @@ save_bz2(prefix+'.lines', aux)
 save_bz2(prefix+'.meta', meta)
 save_bz2(prefix+'.images', imgs)
 
-with open(prefix+'.gen.scl', 'w') as scaler_fp:
+with open(prefix+'.scl', 'w') as scaler_fp:
+    print("Saving", prefix+'.scl')
     json.dump(scaler_params, scaler_fp)
