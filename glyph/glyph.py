@@ -2,6 +2,7 @@
 import numpy as np
 from PIL import Image as im
 
+
 def shade(val):
     if val < 0.0:  return '-'
     if val < .15:  return ' '
@@ -10,6 +11,7 @@ def shade(val):
     if val < .85:  return '0'
     if val <= 1.:  return '#'
     return '+'
+
 
 class Glyph(object):
     @classmethod

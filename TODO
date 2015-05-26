@@ -1,5 +1,8 @@
 #TODO
 
-1) Make unicodes.ast (regardless of mallicodes or alphacodes choice)
-2) Generate reverse lists for mallicodes and alphacodes.
-3) Clean up test_n_draw
+- Distribute probabilities of 0s, 3s
+- Remove ౧,౨ from ్ర 
+- Check ప్పు 
+- Enable logging
+- Index paths by last two entries in stead of just the last!
+- Implement contains for paths

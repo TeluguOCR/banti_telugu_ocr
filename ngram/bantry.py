@@ -57,7 +57,7 @@ from .path import Paths
 
 
 def process_line_bantires(line_bantries):
-    mypaths = Paths(81)
+    mypaths = Paths()
     iword = line_bantries[0].word
 
     for entry in line_bantries:
@@ -73,7 +73,6 @@ def process_line_bantires(line_bantries):
 
 def main():
     import sys
-    import pickle
 
     if len(sys.argv) < 3:
         print('Usage: {} trigram_pickle_file matches_file'.format(sys.argv[0]))

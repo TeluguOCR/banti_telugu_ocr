@@ -1,9 +1,5 @@
 import re
 
-TWO_PIECERS = 'ఘపఫషసహ'
-aksh_pattern = re.compile(r"([ఁ-ఔృౄ])|( )|(([క-హ]్)*[క-హ][ా-ూె-ౌ])|"
-                          r"(([క-హ]్)*[క-హ](?![ా-ూె-్]))|(([క-హ]్)+(?=\s))")
-
 
 def post_process(content):
     rules = [
@@ -40,7 +36,7 @@ def post_process(content):
 
 def impossible(chars):
     """
-    Is a given sequence of labels impossible.
+    Is a given sequence of labels impossible?
     eg:- ఏ followed by anything but an ఎ
     :param chars:
     :return: boolean True if seq is impossible

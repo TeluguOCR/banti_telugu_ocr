@@ -1,10 +1,10 @@
 {
 'type': "Relative",
-'HEIGHT' : 42,
-'WIDTH' : 42,
-'XHEIGHT' : 35,
-'HT_MARGIN': 3,
-'WD_MARGIN' : 3,
+'HEIGHT' : 44,
+'WIDTH' : 44,
+'XHEIGHT' : 36,
+'HT_MARGIN': 2,
+'WD_MARGIN' : 2,
 
 ## Calculated
 #'TOTHT' : 48 # HEIGHT + HT_MARGIN + HT_MARGIN

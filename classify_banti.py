@@ -13,14 +13,15 @@ from ngram.bantry import Bantry, process_line_bantires
 from ngram.post_process import post_process
 
 ############################################# Arguments
+default_ngram = "ngram/mega.123.pkl"
 
 if len(sys.argv) < 5:
     print("Usage:"
     "\n{0} neuralnet_params.pkl banti_output.box scaler_params.scl codes.lbl "
-    "[gram.tri.pkl='ngram/eemaata.tri.pkl']"
+    "[gram.tri.pkl='{1}']"
     "\n\te.g:- {0} cnn_softaux_gold.pkl sample_images/praasa.box "
     "glyph/scalings/relative48.scl glyph/labelings/alphacodes.lbl"
-    "".format(sys.argv[0]))
+    "".format(sys.argv[0], default_ngram))
     sys.exit()
 
 nnet_prms_file_name = sys.argv[1]
@@ -30,7 +31,7 @@ labelings_file_name = sys.argv[4]
 try:
     trigram_file = sys.argv[5]
 except IndexError:
-    trigram_file = "ngram/eemaata.tri.pkl"
+    trigram_file = default_ngram
 
 
 ############################################# Load Params
@@ -68,19 +69,19 @@ for nsamples, metas, data in gg():
         line, word, aux0, aux1 = meta
 
         if ntwk.takes_aux():
-            aux_data = [[(aux0/ht, aux1/ht), (aux0/ht, aux1/ht)]]
+            aux_data = np.array([[(aux0/ht, aux1/ht), (aux0/ht, aux1/ht)]], dtype='float32')
             logprobs_or_feats, preds = tester(img, aux_data)
         else:
             logprobs_or_feats, preds = tester(img)
 
-        output.append((line, word, preds[0], logprobs_or_feats[0]))
+        output.append((line, word, preds[0], logprobs_or_feats[0], aux0, aux1))
 
 
 ############################################# Helpers
 
 def get_best_n(logprobab, n=5):
     topn = np.argsort(logprobab)[:-1 - n:-1]
-    ret = '\n'
+    ret = ''
     for i in range(n):
         ret += '{} {:2.0f}\t'.format(index_to_char(topn[i]),
                                      100 * np.exp(logprobab[topn[i]]))
@@ -92,7 +93,7 @@ best_match = ''
 stats = '\n'
 linenum = -1
 wordnum = 0
-for line, word, pred, logprob in output:
+for line, word, pred, logprob, aux0, aux1 in output:
     if line > linenum:
         best_match += '\n'
         stats += '\n'
@@ -105,7 +106,7 @@ for line, word, pred, logprob in output:
         print(wordnum, end=' ')
 
     best_match += index_to_char(pred)
-    stats += get_best_n(logprob)
+    stats += '\n@({:3d}, {:3d}) '.format(aux0, aux1) + get_best_n(logprob)
 
 print()
 
@@ -122,21 +123,21 @@ with open(out_file_name, 'w', encoding='utf-8') as out_file:
 
 
 ####################################################### Try N-gram
-nclasses = output[-1][-1].size
+nclasses = output[-1][-3].size
 chars = [index_to_char(i) for i in range(nclasses)]
 
 path.priorer.set_trigram(trigram_file)
 
 curr_line = 0
 line_bantries = []
-decency = -np.log(nclasses)
+decency = -2*np.log(nclasses)
 
 out_file_name = banti_file_name.replace('.box', '.gram.txt')
 print('Writing ngrammed output to ', out_file_name)
 ngramout = open(out_file_name, 'w', encoding='utf-8')
 
 
-for line, word, preds, logprobs in output:
+for line, word, preds, logprobs, _, _ in output:
     if line < curr_line:
         raise (ValueError, "Line number can not go down {}->{}".format(
             curr_line, line))

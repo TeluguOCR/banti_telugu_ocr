@@ -17,39 +17,49 @@ def defaultdict_counter():
 
 class _Prior():
     def __init__(self):
-        self.tricount = None
+        self.uni, self.bi, self.tri = None, None, None
 
     def set_trigram(self, pklfile):
         with open(pklfile, 'rb') as fp:
-            self.tricount = pickle.load(fp)
+            self.uni, self.bi, self.tri = pickle.load(fp)
 
-    def __call__(self, chars):
+    def __call__(self, glyphs):
         """ Look up the trigram matrix to get probability of the a sequence of
             one, two or three given glyphs
             TODO : Do better smoothing based on unigram and bigram frequencies
         """
-        if self.tricount is None:
+        if self.tri is None:
             raise ValueError("Trigram not set")
 
-        if len(chars) < 2:
+        if len(glyphs) == 0:
             return 0
 
-        a = chars[-3] if len(chars) > 2 else ' '
-        try:
-            val = self.tricount[a][chars[-2]][chars[-1]]
-            # print('Found: {} : {}'.format(''.join(chars[-3:]), val))
-        except KeyError:
-            val = 0
-            # print("Not found {}".format(''.join(chars[-3:])))
+        elif len(glyphs) == 1:
+            try:
+                num, denom = self.bi[" "][glyphs[0]], self.uni[" "]
+                print('Y|{}| : {}/{}'.format('|'.join(glyphs).replace(" ", "_"), num, denom))
+            except KeyError:
+                num, denom = 0, 1
+                print("X|{}|".format('|'.join(glyphs).replace(" ", "_")))
 
-        return np.log(1e-6 + val)
+        else:
+            a = glyphs[-3] if len(glyphs) > 2 else ' '
+            try:
+                num, denom = self.tri[a][glyphs[-2]][glyphs[-1]], self.bi[glyphs[-2]][glyphs[-1]]
+                print('Y|{}| : {}/{}'.format('|'.join(glyphs[-3:]).replace(" ", "_"), num, denom))
+
+            except KeyError:
+                num, denom = 0, 1
+                print("X|{}|".format('|'.join(glyphs[-3:]).replace(" ", "_")))
+
+        return np.log(1e-6 + num/denom)
 
 priorer = _Prior()
 
 
 class Path():
     """ Class implements one instance of a probable path
-        chars       : the characters/glyphs making up the path
+        glyphs      : the glyphs making up the path
         posterior   : log posterior probability (sum of liklihood and gramprior)
         liklihood   : log liklihood probability
         gramprior   : log prior probability
@@ -57,13 +67,13 @@ class Path():
 
     def __init__(self, arg=None):
         if arg is None:
-            self.chars = []
+            self.glyphs = []
             self.posterior = 0
             self.liklihood = 0
             self.gramprior = 0
 
         elif isinstance(arg, Path):
-            self.chars = arg.chars[:]
+            self.glyphs = arg.glyphs[:]
             self.posterior = arg.posterior
             self.liklihood = arg.liklihood
             self.gramprior = arg.gramprior
@@ -72,30 +82,30 @@ class Path():
             raise TypeError("Got invalid arg {} of type {}".format(
                 arg, type(arg)))
 
-    def add_next_char(self, char, lik=0):
-        self.chars.append(char)
+    def add_next_glyph(self, glyph, lik=0):
+        self.glyphs.append(glyph)
         self.update_posterior(lik)
 
     def update_posterior(self, lik):
         self.liklihood += lik
-        self.gramprior += priorer(self.chars)
+        self.gramprior += priorer(self.glyphs)
         self.posterior = self.liklihood + self.gramprior
 
-    def beget(self, char, lik):
+    def beget(self, glyph, lik):
         child = Path(self)
-        child.add_next_char(char, lik)
+        child.add_next_glyph(glyph, lik)
         return child
 
     def __str__(self):
-        return '{} : LIK{:3.2f} + PRI{:3.2f} = PST{:3.2f}'.format(
-            ''.join(self.chars),
+        return '{} : L{:.2f}+R{:.2f}=T{:.2f}'.format(
+            ''.join(self.glyphs),
             self.liklihood,
             self.gramprior,
             self.posterior,
         )
 
     def text(self):
-        return ''.join(self.chars)
+        return ''.join(self.glyphs)
 
 
 class Paths():
@@ -104,23 +114,35 @@ class Paths():
         paths: the actual ocr_paths
     """
 
-    def __init__(self, order):
-        self.order = order
+    def __init__(self):
         self.paths = [Path()]
 
     def update(self, liklies):
-        """ Given the set of probable characters for the next glyphs,
+        """ Given the set of probable candidates for the next glyph,
             creates more child paths and keeps only the best ones.
         """
-        tmp_paths = [path.beget(ch, lk) for path in self.paths
-                     for ch, lk in liklies]
-        tmp_paths = sorted(tmp_paths, key=lambda p: p.posterior, reverse=True)
-        self.paths = tmp_paths[:self.order]
+        tmp_paths, n = [], 0
+        for glp, lik in liklies:
+            n += 1
+            best = -np.inf
+            for path in self.paths:
+                child = path.beget(glp, lik)
+                if child.posterior > best:
+                    best = child.posterior
+                    bestchild = child
+            tmp_paths.append(bestchild)
+            #print("{} {:.1e} {}".format(glp, lik, bestchild))
 
-    def simple_update(self, char, sort=False):
-        """ Just adds the same character to all the paths (usually a space)"""
+        self.paths = tmp_paths
+        print("Recieved {} likelies, created {} paths".format(
+            n, len(self.paths)))
+        for p in sorted(self.paths, key=lambda x:x.posterior, reverse=True):
+            print(p)
+
+    def simple_update(self, glyph, sort=False):
+        """ Just adds the same glyph to all the paths (usually a space)"""
         for path in self.paths:
-            path.add_next_char(char)
+            path.add_next_glyph(glyph)
         if sort:
             self.paths = sorted(self.paths, key=lambda p: p.posterior,
                                 reverse=True)

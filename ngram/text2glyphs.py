@@ -29,12 +29,12 @@ def process_two_piecers(akshara):
           హుహూహొహోహౌ'''.find(akshara) >= 0:
         return ['✓', akshara]
 
-        # Class of vowel-mark & underlying consonant base
+    # Class of vowel-mark & underlying consonant base
     if '''ఘిఘీఘెఘేపిపీపెపేఫిఫీఫెఫేషిషీషెషేసిసీసె
           సేహిహీహెహేఘ్ప్ఫ్ష్స్హ్ '''.find(akshara) >= 0:
         return [akshara[1], akshara[0]]
 
-        # Detached ai-karams
+    # Detached ai-karams
     if 'ఘైపైఫైషైసైహై'.find(akshara) >= 0:
         return ['ె', akshara[0], 'ై']
 
@@ -91,11 +91,11 @@ def process_akshara(akshara):
     return glps
 
 
-def process_line(line):
+def process_line(line, pattern=aksh_pattern):
     """The main function of this module; Used to parse one chunk of Telugu text
     """
     glps = []
-    for a in aksh_pattern.finditer(line):
+    for a in pattern.finditer(line):
         glps += process_akshara(a.group())
     return glps
 

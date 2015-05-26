@@ -157,7 +157,7 @@ def draw_save(l, title, path='imgs/img_'):
     draw(l, title, save=True, path=path)
 
 if __name__ == '__main__':
-    from Mallicodes import mallicodes, unicodes
+    from mallicodes import mallicodes, unicodes
     for i, l in enumerate(mallicodes):
         l = [float(ll)/2 for ll in l]
         print l
