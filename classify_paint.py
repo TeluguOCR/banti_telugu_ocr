@@ -1,46 +1,29 @@
-#!/usr/bin/python
-from __future__ import print_function
 import ast
+import os
 import pickle
 import sys
-import logging
-
+from math import ceil
+from data.categorize import tile_raster_images
+from PIL import Image as im
 import numpy as np
-from theanet.neuralnet import NeuralNet
-
 from glyph.bantireader import BantiReader
+from theanet.neuralnet import NeuralNet
 from iast_unicodes import get_index_to_char_converter
 
-import ngram.path as path
-from ngram.bantry import Bantry, process_line_bantires
-from ngram.post_process import post_process
-
 ############################################# Arguments
-default_ngram = "ngram/mega.123.pkl"
 
 if len(sys.argv) < 5:
     print("Usage:"
     "\n{0} neuralnet_params.pkl banti_output.box scaler_params.scl codes.lbl "
-    "[gram.tri.pkl='{1}']"
-    "\n\te.g:- {0} trained.pkl sample_images/praasa.box "
-    "scalings/relative48.scl labelings/alphacodes.lbl"
-    "".format(sys.argv[0], default_ngram))
+    "\n\te.g:- {0} cnn_softaux_gold.pkl sample_images/praasa.box "
+    "glyph/scalings/relative48.scl glyph/labelings/alphacodes.lbl"
+    "".format(sys.argv[0]))
     sys.exit()
 
 nnet_prms_file_name = sys.argv[1]
 banti_file_name = sys.argv[2]
 scaler_prms_file = sys.argv[3]
 labelings_file_name = sys.argv[4]
-if len(sys.argv) > 5 and sys.argv[5].endswith(".pkl"):
-    trigram_file = sys.argv[5]
-else:
-    trigram_file = default_ngram
-
-logging.basicConfig(filename=banti_file_name.replace('.box', '.log'),
-                    level=logging.INFO)
-if sys.argv[-1] != "1":
-    logging.disable(logging.CRITICAL)
-logging.info(' '.join(sys.argv))
 
 ############################################# Load Params
 
@@ -65,9 +48,29 @@ nnet_prms['layers'][0][1]['img_sz'] = ht
 ntwk = NeuralNet(nnet_prms['layers'],
                  nnet_prms['training_params'],
                  nnet_prms['allwts'])
-tester = ntwk.get_data_test_model()
+tester = ntwk.get_data_test_model(go_nuts=True)
 
 output = []
+
+############################################# Image saver
+dir_name = os.path.basename(nnet_prms_file_name)[:7] + '/'
+if not os.path.exists(dir_name):
+    os.makedirs(dir_name)
+namer = (dir_name + '{:03d}_{}_{:02d}.png').format
+print("Look for me in :", dir_name)
+
+def saver(outs, ch):
+    saver.index += 1
+    for i, out in enumerate(outs):
+        if out.ndim == 2:
+            out = out.reshape((out.shape[1], 1, 1))
+        elif out.ndim == 4:
+            out = out[0]
+
+        im.fromarray(tile_raster_images(out)).save(
+            namer(saver.index, index_to_char(ch), i))
+
+saver.index = 0
 
 ############################################# Read glyphs & classify
 print("Classifying...")
@@ -78,12 +81,13 @@ for nsamples, metas, data in gg():
 
         if ntwk.takes_aux():
             aux_data = np.array([[(aux0/ht, aux1/ht), (aux0/ht, aux1/ht)]], dtype='float32')
-            logprobs_or_feats, preds = tester(img, aux_data)
+            logprobs_or_feats, preds, *layer_outs = tester(img, aux_data)
         else:
-            logprobs_or_feats, preds = tester(img)
+            logprobs_or_feats, preds, *layer_outs = tester(img)
 
         output.append((line, word, preds[0], logprobs_or_feats[0], aux0, aux1))
-
+        saver(layer_outs, np.argmax(logprobs_or_feats))
+    print("Saved {:4d} Images".format(saver.index))
 
 ############################################# Helpers
 
@@ -119,52 +123,8 @@ for line, word, pred, logprob, aux0, aux1 in output:
 print()
 
 ############################################# Write to text file
-out_file_name = banti_file_name.replace('.box', '.txt')
-print('Writing output to ', out_file_name)
-with open(out_file_name, 'w', encoding='utf-8') as out_file:
-    out_file.write(post_process(best_match))
-
 out_file_name = banti_file_name.replace('.box', '.matches')
 print('Writing matches to ', out_file_name)
 with open(out_file_name, 'w', encoding='utf-8') as out_file:
     out_file.write(stats)
 
-
-####################################################### Try N-gram
-nclasses = output[-1][-3].size
-chars = [index_to_char(i) for i in range(nclasses)]
-
-path.priorer.set_trigram(trigram_file)
-
-curr_line = 0
-line_bantries = []
-decency = -np.log(nclasses)
-
-out_file_name = banti_file_name.replace('.box', '.gram.txt')
-print('Writing ngrammed output to ', out_file_name)
-ngramout = open(out_file_name, 'w', encoding='utf-8')
-
-
-for line, word, preds, logprobs, _, _ in output:
-    if line < curr_line:
-        raise (ValueError, "Line number can not go down {}->{}".format(
-            curr_line, line))
-
-    decent = logprobs > decency
-    mychars = [chars[i] for i, ok in enumerate(decent) if ok]
-    e = Bantry(line, word, zip(mychars, logprobs[decent]))
-
-    if line == curr_line:
-        line_bantries.append(e)
-
-    else:
-        processed = process_line_bantires(line_bantries)
-        ngramout.write(post_process(processed))
-
-        line_bantries = [e]
-        curr_line = line
-
-processed = process_line_bantires(line_bantries)
-ngramout.write(post_process(processed))
-
-ngramout.close()

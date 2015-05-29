@@ -13,6 +13,10 @@ class BantiReader(object):
         self.params = scaler_params
 
     def __call__(self):
+        """
+        Yield a batch pf size self.batch_sz on each call.
+
+        """
         ret_data = []
         ret_meta = []
         isample = 0

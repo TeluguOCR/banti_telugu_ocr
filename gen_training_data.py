@@ -96,7 +96,7 @@ class GlyphDir(object):
 
             yield scaled_glyph, \
                   font_style, \
-                  np.round(np.array((highs, lowws))/self.scaler.params.TOTHT, 3)
+                  np.round(np.array((highs, lowws)), 3)
 
     def getter(self):
         return getattr(self, self.default_getter)()

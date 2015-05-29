@@ -28,12 +28,14 @@ from PIL import Image
 
 from theanet.neuralnet import NeuralNet
 from iast_unicodes import get_index_to_char_converter
+import time
 
+import bz2, json
 ############################################## Helpers
 
 
 def read_json_bz2(path2data):
-    import bz2, json
+    print("Loading ", path2data)
     bz2_fp = bz2.BZ2File(path2data, 'r')
     data = np.array(json.loads(bz2_fp.read().decode('utf-8')))
     bz2_fp.close()
@@ -129,6 +131,17 @@ cum_err_rate = sum(wrongs.values())/sum(counts.values())
 train_test_errs[0] /= n_training_batches * batch_sz
 train_test_errs[1] /= (n_batches-n_training_batches) * batch_sz
 print("Error Rates Cum:{:.2%} Train:{:.2%} Test:{:.2%}".format(cum_err_rate, *train_test_errs))
+
+####################### Speed Check
+n_time_bathces = 100
+print("Checking speed: ", end="")
+start = time.time()
+for ibatch in range(n_time_bathces):
+    tester(ibatch)
+elapsed = time.time() - start
+avg_time = 1000*elapsed/(n_time_bathces*batch_sz)
+print("{:.3f}ms per glyph".format(avg_time))
+
 ####################### HTML strings
 
 head = '''<!DOCTYPE html>
@@ -136,10 +149,11 @@ head = '''<!DOCTYPE html>
 <body><h2>Errors for file {0} using the parameters {1}</h2>
 <h2>Cumulative error rate: {2:.2%}</h2>
 </br>Training: {4[0]:.2%} Test: {4[1]:.2%}
+<h3>Average time per glyph: {5:.3f}ms</h2>
 <h2>Network</h2> <pre>{3}</pre>
 </br>N) Character_Shown:(wrongs of tested = error%)
 </br> Character_Seen Image_Shown(rank, truth's prob% vs max's prob%)...
-'''.format(x_data_file, neural_net_file, cum_err_rate, ntwk, train_test_errs)
+'''.format(x_data_file, neural_net_file, cum_err_rate, ntwk, train_test_errs, avg_time)
 filler_main = '\n</br><p> {}) {} ({} of {} = {:.2f}%)</p>'
 filler_sub = '\n</br>{}'
 filler_img = '\n<img src="data:image/png;base64,{0}" title="{1} {2}"/> ' \

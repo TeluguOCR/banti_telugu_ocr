@@ -6,6 +6,7 @@
 
     This module implements the n-gram model for Telugu OCR
 """
+import logging
 import pickle
 import numpy as np
 from collections import defaultdict, Counter
@@ -20,6 +21,7 @@ class _Prior():
         self.uni, self.bi, self.tri = None, None, None
 
     def set_trigram(self, pklfile):
+        logging.info("Ngram file:" + pklfile)
         with open(pklfile, 'rb') as fp:
             self.uni, self.bi, self.tri = pickle.load(fp)
 
@@ -35,22 +37,25 @@ class _Prior():
             return 0
 
         elif len(glyphs) == 1:
+            lookup = '|'.join(glyphs).replace(" ", "_")
             try:
                 num, denom = self.bi[" "][glyphs[0]], self.uni[" "]
-                print('Y|{}| : {}/{}'.format('|'.join(glyphs).replace(" ", "_"), num, denom))
+                logging.info('Y|{}| : {}/{}'.format(lookup, num, denom))
             except KeyError:
                 num, denom = 0, 1
-                print("X|{}|".format('|'.join(glyphs).replace(" ", "_")))
+                logging.info("X|{}|".format(lookup))
 
         else:
             a = glyphs[-3] if len(glyphs) > 2 else ' '
+            b, c = glyphs[-2:]
+            lookup = '|'.join((a, b, c)).replace(" ", "_")
             try:
-                num, denom = self.tri[a][glyphs[-2]][glyphs[-1]], self.bi[glyphs[-2]][glyphs[-1]]
-                print('Y|{}| : {}/{}'.format('|'.join(glyphs[-3:]).replace(" ", "_"), num, denom))
+                num, denom = self.tri[a][b][c], self.bi[b][c]
+                logging.info('Y|{}| : {}/{}'.format(lookup, num, denom))
 
             except KeyError:
                 num, denom = 0, 1
-                print("X|{}|".format('|'.join(glyphs[-3:]).replace(" ", "_")))
+                logging.info("X|{}|".format(lookup))
 
         return np.log(1e-6 + num/denom)
 
@@ -97,7 +102,7 @@ class Path():
         return child
 
     def __str__(self):
-        return '{} : L{:.2f}+R{:.2f}=T{:.2f}'.format(
+        return '{} : L{:.2f} + R{:.2f} = T{:.2f}'.format(
             ''.join(self.glyphs),
             self.liklihood,
             self.gramprior,
@@ -131,13 +136,13 @@ class Paths():
                     best = child.posterior
                     bestchild = child
             tmp_paths.append(bestchild)
-            #print("{} {:.1e} {}".format(glp, lik, bestchild))
+            logging.info("Glp:{} Lik:{:.1e} Best:{}".format(glp, lik, bestchild))
 
         self.paths = tmp_paths
-        print("Recieved {} likelies, created {} paths".format(
+        logging.info("Recieved {} likelies, created {} paths".format(
             n, len(self.paths)))
         for p in sorted(self.paths, key=lambda x:x.posterior, reverse=True):
-            print(p)
+            logging.info(p)
 
     def simple_update(self, glyph, sort=False):
         """ Just adds the same glyph to all the paths (usually a space)"""
@@ -148,6 +153,6 @@ class Paths():
                                 reverse=True)
 
     def print_top(self, n=3):
-        print("Top", n, "candidates")
+        #print("Top", n, "candidates")
         for i in range(min(len(self.paths), n)):
             print(str(self.paths[i]))
