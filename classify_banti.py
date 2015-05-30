@@ -37,9 +37,13 @@ else:
     trigram_file = default_ngram
 
 logging.basicConfig(filename=banti_file_name.replace('.box', '.log'),
-                    level=logging.INFO)
+                    level=logging.INFO,
+                    filemode="w")
 if sys.argv[-1] != "1":
+    print("Logging disabled.")
     logging.disable(logging.CRITICAL)
+else:
+    print("logging enabled")
 logging.info(' '.join(sys.argv))
 
 ############################################# Load Params
@@ -132,13 +136,13 @@ with open(out_file_name, 'w', encoding='utf-8') as out_file:
 
 ####################################################### Try N-gram
 nclasses = output[-1][-3].size
-chars = [index_to_char(i) for i in range(nclasses)]
+codes = np.array([index_to_char(i) for i in range(nclasses)])
 
 path.priorer.set_trigram(trigram_file)
 
 curr_line = 0
 line_bantries = []
-decency = -np.log(nclasses)
+decency = 5
 
 out_file_name = banti_file_name.replace('.box', '.gram.txt')
 print('Writing ngrammed output to ', out_file_name)
@@ -150,9 +154,8 @@ for line, word, preds, logprobs, _, _ in output:
         raise (ValueError, "Line number can not go down {}->{}".format(
             curr_line, line))
 
-    decent = logprobs > decency
-    mychars = [chars[i] for i, ok in enumerate(decent) if ok]
-    e = Bantry(line, word, zip(mychars, logprobs[decent]))
+    decent = np.argpartition(logprobs, -decency)[-decency:]
+    e = Bantry(line, word, zip(codes[decent], logprobs[decent]))
 
     if line == curr_line:
         line_bantries.append(e)

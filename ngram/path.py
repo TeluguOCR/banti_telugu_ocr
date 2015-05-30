@@ -119,28 +119,30 @@ class Paths():
         paths: the actual ocr_paths
     """
 
-    def __init__(self):
+    def __init__(self, retain=25):
         self.paths = [Path()]
+        self.retain = retain
 
     def update(self, liklies):
         """ Given the set of probable candidates for the next glyph,
             creates more child paths and keeps only the best ones.
         """
-        tmp_paths, n = [], 0
-        for glp, lik in liklies:
-            n += 1
-            best = -np.inf
-            for path in self.paths:
-                child = path.beget(glp, lik)
-                if child.posterior > best:
-                    best = child.posterior
-                    bestchild = child
-            tmp_paths.append(bestchild)
-            logging.info("Glp:{} Lik:{:.1e} Best:{}".format(glp, lik, bestchild))
+        liklies = list(liklies)
+        logging.info("Likelies recieved: {}".format(liklies))
 
-        self.paths = tmp_paths
-        logging.info("Recieved {} likelies, created {} paths".format(
-            n, len(self.paths)))
+        tmp_paths = [path.beget(ch, lk) for path in self.paths
+                     for ch, lk in liklies]
+
+        if len(tmp_paths) > self.retain:
+            posteriors = np.fromiter((-p.posterior for p in tmp_paths),
+                                     dtype=float,
+                                     count=len(tmp_paths))
+            tokeep = np.argpartition(posteriors, self.retain)[:self.retain]
+            self.paths = [tmp_paths[i] for i in tokeep]
+
+        else:
+            self.paths = tmp_paths
+
         for p in sorted(self.paths, key=lambda x:x.posterior, reverse=True):
             logging.info(p)
 

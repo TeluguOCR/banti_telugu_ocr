@@ -64,7 +64,7 @@ class Glyph(object):
         """
         :type dtopbot: list of doubles like [(dt1, db1), (dt2, db2), ..., ]
         """
-        obj = cls.fromImg(img, dtopbot[0][0], dtopbot[0][1])
+        obj = cls.fromImg(img, *dtopbot[0])
         obj.dtopbot = dtopbot
         return obj
 
