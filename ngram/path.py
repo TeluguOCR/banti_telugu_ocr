@@ -37,7 +37,7 @@ class _Prior():
             return 0
 
         elif len(glyphs) == 1:
-            lookup = '|'.join(glyphs).replace(" ", "_")
+            lookup = ('_|'+ glyphs[0])
             try:
                 num, denom = self.bi[" "][glyphs[0]], self.uni[" "]
                 logging.info('Y|{}| : {}/{}'.format(lookup, num, denom))
@@ -50,14 +50,17 @@ class _Prior():
             b, c = glyphs[-2:]
             lookup = '|'.join((a, b, c)).replace(" ", "_")
             try:
-                num, denom = self.tri[a][b][c], self.bi[b][c]
+                num, denom = self.tri[a][b][c], self.bi[a][b]
                 logging.info('Y|{}| : {}/{}'.format(lookup, num, denom))
 
             except KeyError:
                 num, denom = 0, 1
                 logging.info("X|{}|".format(lookup))
 
-        return np.log(1e-6 + num/denom)
+        if num == 0:
+            return -12
+        else:
+            return np.log(num/denom)
 
 priorer = _Prior()
 

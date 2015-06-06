@@ -81,7 +81,7 @@ for nsamples, metas, data in gg():
         line, word, aux0, aux1 = meta
 
         if ntwk.takes_aux():
-            aux_data = np.array([[(aux0/ht, aux1/ht), (aux0/ht, aux1/ht)]], dtype='float32')
+            aux_data = np.array([[(aux0, aux1), (aux0, aux1)]], dtype='float32')
             logprobs_or_feats, preds = tester(img, aux_data)
         else:
             logprobs_or_feats, preds = tester(img)
