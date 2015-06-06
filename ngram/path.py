@@ -157,7 +157,8 @@ class Paths():
             self.paths = sorted(self.paths, key=lambda p: p.posterior,
                                 reverse=True)
 
-    def print_top(self, n=3):
-        #print("Top", n, "candidates")
+    def print_top(self, n=3, log=True):
+        printo = logging.info if log else print
+        printo("Top {} candidates".format(n))
         for i in range(min(len(self.paths), n)):
-            print(str(self.paths[i]))
+            printo(str(self.paths[i]))
