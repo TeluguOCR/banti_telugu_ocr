@@ -4,7 +4,9 @@ import logging
 
 log =  logging.info if False else print
 
-class TriGramGraph(LineGraph):
+class GramGraph(LineGraph):
+    ngram = lambda *_: None
+
     def __init__(self, line_bantries):
         super().__init__(line_bantries)
         self.paths_till = defaultdict(dict)
@@ -22,9 +24,6 @@ class TriGramGraph(LineGraph):
             self.paths_till[node][" "] = 0, 0, 0
             log("At root {}".format(node))
 
-        #TODO: Handle case where parent does not have keys
-        #TODO: Or has key of length < 2
-        #TODO: Provide trigram hook
         else:
             for parent, bantry in self.lparents[node]:
                 paths_till_parent = self.top_ngram_paths(parent)
@@ -33,7 +32,7 @@ class TriGramGraph(LineGraph):
                     end = key[-1]
                     likli0, prior0, post0 = val
                     for char, likli in bantry.likelies:
-                        prior = trigram(key, char)
+                        prior = self.ngram(key + (char,))
                         post = post0 + prior + likli
                         if (end, char) in self.paths_till[node] and \
                                         self.paths_till[node][end, char][-1] > post:

@@ -11,7 +11,7 @@ class Bantry(Glyph):
     def __init__(self, line_info):
         super().__init__(line_info)
         self.scaled = self.scaler(self)
-        self.likelies = self.classifier(self.scaled.pix)
+        self.likelies = self.classifier(self.scaled)
 
     def strength(self):
         return max(self.likelies)
@@ -62,21 +62,15 @@ class BantryFile():
         return self.bantries[i]
 
 if __name__ == "__main__":
-    import ast
     import sys
     from scaler import ScalerFactory
 
     banti_file_name = sys.argv[1]
     scaler_prms_file = sys.argv[2]
 
-    with open(scaler_prms_file) as scaler_fp:
-        scaler_params = ast.literal_eval(scaler_fp.read())
-    Bantry.scaler = ScalerFactory(scaler_params)
-
+    Bantry.scaler = ScalerFactory(scaler_prms_file)
     bf = BantryFile(banti_file_name)
 
-    iimg = 0
-    linenum = 0
     for linenum in range(bf.num_lines):
         print('*' * 60)
         line_bantries = bf.get_line_bantires(linenum)

@@ -192,6 +192,11 @@ iast2uni = {
 
 
 def get_index_to_char_converter(labellings):
+    if type(labellings) is str:
+        import ast
+        with open(labellings, encoding='utf-8') as labels_fp:
+            labellings = ast.literal_eval(labels_fp.read())
+
     reverse_labels = dict((v, k) for k, v in labellings.items())
 
     def index_to_char(i):

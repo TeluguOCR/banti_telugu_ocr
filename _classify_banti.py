@@ -46,24 +46,6 @@ else:
     print("logging enabled")
 logging.info(' '.join(sys.argv))
 
-############################################# Read glyphs & classify
-print("Classifying...")
-for nsamples, metas, data in gg():
-    for meta, scaled_glp in zip(metas, data):
-        img = scaled_glp.pix.astype('float32').reshape((1, ht, ht))
-        line, word, aux0, aux1 = meta
-
-        if ntwk.takes_aux():
-            aux_data = np.array([[(aux0, aux1), (aux0, aux1)]], dtype='float32')
-            logprobs_or_feats, preds = tester(img, aux_data)
-        else:
-            logprobs_or_feats, preds = tester(img)
-
-        output.append((line, word, preds[0], logprobs_or_feats[0], aux0, aux1))
-
-
-############################################# Helpers
-
 def get_best_n(logprobab, n=5):
     topn = np.argsort(logprobab)[:-1 - n:-1]
     ret = ''
