@@ -17,6 +17,7 @@ from glyph.glyph import Glyph
 from glyph.scaler import ScalerFactory
 
 ################################### Process Files & Dirs #####################
+from glyph import BasicGlyph
 
 
 def split_file_name(file_path):
@@ -47,7 +48,7 @@ class GlyphDir(object):
 
             img = Image.open(os.path.join(dir_path, file_path))
             font, style, id_, dtbpairs = split_file_name(file_path)
-            glyphs[(font, style)].append(Glyph.fromImgDTBpairs(img, dtbpairs))
+            glyphs[(font, style)].append(BasicGlyph((img, dtbpairs)))
 
         self.glyphs = glyphs
         self.dir = dir_path
@@ -59,14 +60,14 @@ class GlyphDir(object):
         for font_style, glyph_list in list(self.glyphs.items()):
             for glyph in glyph_list:
                 for dtop, dbot in glyph.dtopbot:
-                    yield (self.scaler(Glyph.fromImg(glyph.img, dtop, dbot)),
+                    yield (self.scaler(BasicGlyph((glyph.img, dtop, dbot))),
                            font_style)
 
     def get_one_per_file(self, ):
         for font_style, glyph_list in list(self.glyphs.items()):
             for glyph in glyph_list:
                 dtop, dbot = choice(glyph.dtopbot)
-                yield (self.scaler(Glyph.fromImg(glyph.img, dtop, dbot)),
+                yield (self.scaler(BasicGlyph((glyph.img, dtop, dbot))),
                        font_style)
 
     def get_one_per_style(self, ):
@@ -81,8 +82,8 @@ class GlyphDir(object):
             # Find scaled dtop, dbot for all imgs (very very inefficient)
             for glyph in glyph_list:
                 for dtop, dbot in glyph.dtopbot:
-                    scaled_glyph = self.scaler(Glyph.fromImg(glyph.img,
-                                                             dtop, dbot))
+                    scaled_glyph = self.scaler(BasicGlyph((glyph.img,
+                                                             dtop, dbot)))
                     scaled_dtopbots.append((scaled_glyph.dtop,
                                             scaled_glyph.dbot))
 

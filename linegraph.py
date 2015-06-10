@@ -2,11 +2,10 @@ import logging
 import random
 import numpy as np
 
-#log = logging.info
-log = print
+log = logging.info if False else print
 
 
-class Linetree():
+class LineGraph():
     def __init__(self, wts):
         """
 
@@ -89,7 +88,7 @@ class Linetree():
                     ret += wt.strength()
                     break
             else:
-                raise ValueError(str(path))
+                raise ValueError("Path not found in graph: {}".format(path))
 
         return ret
 
@@ -155,7 +154,7 @@ class Weight():
 if __name__ == "__main__":
     weights = [Weight(val) for val in range(10, 80, 10)]
     print(list(enumerate(weights)))
-    lt = Linetree(weights)
+    lt = LineGraph(weights)
     print(lt.lchildren)
     print(lt)
     lt.process_tree()

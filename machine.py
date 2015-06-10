@@ -1,7 +1,6 @@
 import ast
 import pickle
 from theanet.neuralnet import NeuralNet
-from bantireader import BoxFileReader
 from iast_unicodes import get_index_to_char_converter
 
 

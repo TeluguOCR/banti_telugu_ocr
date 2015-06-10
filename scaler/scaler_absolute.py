@@ -1,5 +1,5 @@
 from PIL import Image
-from glyph.glyph import Glyph
+from glyph import BasicGlyph
 
 
 class Bunch(object):
@@ -48,4 +48,4 @@ class Absolute:
         img2 = Image.new("L", (p.TOTWD, p.TOTHT), "white")
         img2.paste(scaled_img, (p.BUFLEFT + move2x, p.BUFTOP + move2y))
 
-        return Glyph.fromImg(img2, -p.BUFTOP-p.NMTOP, p.BUFBOT+p.NMBOT)
+        return BasicGlyph((img2, -p.BUFTOP-p.NMTOP, p.BUFBOT+p.NMBOT))

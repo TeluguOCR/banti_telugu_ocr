@@ -1,5 +1,5 @@
 from PIL import Image
-from glyph.glyph import Glyph
+from glyph import BasicGlyph
 
 
 class Bunch(object):
@@ -44,4 +44,4 @@ class Relative():
         new_dtop = glp.dtop * scalef - move2y
         new_dbot = glp.dbot * scalef - move2y + p.TOTHT - new_ht
 
-        return Glyph.fromImg(img2, new_dtop, new_dbot)
+        return BasicGlyph((img2, new_dtop, new_dbot))
