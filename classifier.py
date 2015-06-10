@@ -1,6 +1,7 @@
 import pickle
 import numpy as np
 from theanet.neuralnet import NeuralNet
+from iast_unicodes import get_index_to_char_converter
 
 
 class Classifier():
@@ -44,7 +45,6 @@ if __name__ == "__main__":
     import sys
     from scaler import ScalerFactory
     from bantry import Bantry, BantryFile
-    from iast_unicodes import get_index_to_char_converter
 
     banti_file_name = sys.argv[1]
     nnet_file = sys.argv[2]

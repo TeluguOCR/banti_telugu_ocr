@@ -6,67 +6,97 @@ class Bantry(Glyph):
     characters and the respective liklihoods for one glyph.
     """
     scaler = lambda *_: None
-    classifier = lambda *_: None
+    classifier = lambda *_: (None, None)
 
-    def __init__(self, line_info):
+    def __init__(self, line_info=None):
         super().__init__(line_info)
-        self.scaled = self.scaler(self)
-        self.likelies = self.classifier(self.scaled)
+        if line_info:
+            self.scaled = self.scaler(self)
+            self.likelies = self.classifier(self.scaled)
+
+    @property
+    def best_char(self):
+        return max(zip(*self.likelies), key=lambda x: x[1])[0]
 
     def strength(self):
-        return max(self.likelies)
+        return max(self.likelies[1])
+
+    def __str__(self):
+        return super().__str__() + "\n" + \
+               "; ".join("{} {:.3f}".format(char, lik) for char, lik in zip(*self.likelies))
 
     def combine(self, other):
         docombine, combined = False, None
 
-        # Do some stuff here
+        # Put checks here
+        if other is Space:
+            return False, None
+
+        if self.best_char == '-' and other.best_char == '-':
+            docombine = True
 
         if docombine:
             combined = self + other
-            combined.scaled = self.scaler(self)
-            combined.likelies = self.classifier(combined.scaled.pix)
+            combined.scaled = self.scaler(combined)
+            combined.likelies = self.classifier(combined.scaled)
+            print("Combining\n{}\n{}\n{}".format(self, other, combined))
 
         return docombine, combined
 
+class Space():
+    likelies = (" ",), (0,)
+    strength = 1
+    scaled = "---\n| |\n---"
+
+    @classmethod
+    def combine(cls, other):
+        return False, None
+
+    def __repr__(self):
+        return "_"
 
 class BantryFile():
     def __init__(self, name):
         in_file = open(name)
-        bantries = []
+        self.file_bantries = []
 
-        iline = 0
-        iline_bantries = []
+        iword, iline = 0, 0
+        line_bantries = []
 
         for line in in_file:
             e = Bantry(line)
             if e.linenum == iline:
-                iline_bantries.append(e)
+                if e.wordnum > iword:
+                    iword = e.wordnum
+                    line_bantries.append(Space)
+                line_bantries.append(e)
 
             elif e.linenum > iline:
-                bantries.append(iline_bantries)
+                self.file_bantries.append(line_bantries)
+                iword = 0
                 iline += 1
                 while iline < e.linenum:
-                    bantries.append([])
+                    self.file_bantries.append([])
                     iline += 1
-                iline_bantries = [e]
+                line_bantries = [e]
 
             else:
                 raise ValueError("Line number can not go down.")
 
-        bantries.append(iline_bantries)
-        self.bantries = bantries
-        self.num_lines = bantries[-1][-1].linenum
+        self.file_bantries.append(line_bantries)
+        self.num_lines = self.file_bantries[-1][-1].linenum
         in_file.close()
 
     def get_line_bantires(self, i):
-        return self.bantries[i]
+        return self.file_bantries[i]
 
 if __name__ == "__main__":
     import sys
     from scaler import ScalerFactory
 
-    banti_file_name = sys.argv[1]
-    scaler_prms_file = sys.argv[2]
+    banti_file_name = sys.argv[1] if len(sys.argv) > 1 else "sample_images/praasa.box"
+    scaler_prms_file = sys.argv[2] if len(sys.argv) > 2 else "scalings/relative48.scl"
+
 
     Bantry.scaler = ScalerFactory(scaler_prms_file)
     bf = BantryFile(banti_file_name)

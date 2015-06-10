@@ -158,7 +158,7 @@ class Glyph():
     def __add__(self, other):
         x1, y1, x2, y2 = min(self.x, other.x), min(self.y, other.y), \
                          max(self.x2, other.x2), max(self.y2, other.y2)
-        summ = Glyph()
+        summ = self.__class__()
         summ.set_xy_xy((x1, y1, x2, y2))
         summ.set_pix([[(self.get_pixel_abs(r, c) or other.get_pixel_abs(r, c))
               for c in range(x1, x2)] for r in range(y1, y2)])

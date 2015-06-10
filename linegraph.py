@@ -2,7 +2,7 @@ import logging
 import random
 import numpy as np
 
-log = logging.info if False else print
+log = logging.info if True else print
 
 
 class LineGraph():
@@ -24,6 +24,10 @@ class LineGraph():
         self.checked_gcs = []
         self.path_strength_till = {}
         self.find_parents()
+
+    @property
+    def last_node(self):
+        return len(self.lchildren) - 1
 
     def find_parents(self):
         self.lparents = [[] for _ in self.lchildren]
@@ -94,7 +98,7 @@ class LineGraph():
 
     def strongest_path(self, node=None):
         if node is None:
-            node = len(self.lchildren)-1
+            node = self.last_node
 
         log("IN {}".format(node))
         if node in self.path_strength_till:
