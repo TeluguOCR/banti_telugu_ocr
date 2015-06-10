@@ -5,6 +5,7 @@ import numpy as np
 #log = logging.info
 log = print
 
+
 class Linetree():
     def __init__(self, wts):
         """

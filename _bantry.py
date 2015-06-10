@@ -1,4 +1,8 @@
-class Bantry():
+from glyph import Glyph
+from scaler import ScalerFactory
+
+
+class Bantry(Glyph):
     """Class used to process a space seperated line and store the probable
     characters and the respective liklihoods for one glyph.
     """
@@ -51,9 +55,42 @@ class BantryFile():
     def get_line_bantires(self, i):
         return self.bantries[i]
 
+class BoxFileReader(object):
+    def __init__(self, box_file, scaler_params, batch_sz=20):
+        with open(box_file) as box_fp:
+            self.box_file = box_fp.read()
+        self.scaler = ScalerFactory(scaler_params)
+        self.batch_sz = batch_sz
+        self.params = scaler_params
+
+    def __call__(self):
+        """
+        Yield a batch pf size self.batch_sz on each call.
+
+        """
+        ret_data = []
+        ret_meta = []
+        n_samples = 0
+        for glp_entry in self.box_file.split('\n'):
+            bantry = Bantry.fromSixPack(glp_entry)
+            if bantry is None:
+                print('Malformed entry : ', glp_entry)
+                continue
+
+            scaled_glp = self.scaler(bantry)
+            ret_data.append(scaled_glp)
+            ret_meta.append((bantry.linenum, bantry.wordnum, bantry.dtop, bantry.dbot))
+            n_samples += 1
+            if n_samples == self.batch_sz:
+                yield (n_samples, ret_meta, ret_data)
+                n_samples = 0
+                ret_meta = []
+                ret_data = []
+
+        yield (n_samples, ret_meta, ret_data)
+
+
 # ##############################################################################
-from . import _path
-from ._path import Paths
 
 
 def process_line_bantires(line_bantries):

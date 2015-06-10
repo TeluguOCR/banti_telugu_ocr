@@ -46,33 +46,6 @@ else:
     print("logging enabled")
 logging.info(' '.join(sys.argv))
 
-############################################# Load Params
-
-with open(scaler_prms_file, 'r') as sfp:
-    scaler_prms = ast.literal_eval(sfp.read())
-
-with open(nnet_prms_file_name, 'rb') as nnet_prms_file:
-    nnet_prms = pickle.load(nnet_prms_file)
-
-with open(labelings_file_name, encoding='utf-8') as labels_fp:
-    labellings = ast.literal_eval(labels_fp.read())
-
-# print(labellings)
-index_to_char = get_index_to_char_converter(labellings)
-
-############################################# Init Network
-gg = BantiReader(banti_file_name, scaler_prms)
-
-ht = gg.scaler.params.TOTHT
-nnet_prms['training_params']['BATCH_SZ'] = 1
-nnet_prms['layers'][0][1]['img_sz'] = ht
-ntwk = NeuralNet(nnet_prms['layers'],
-                 nnet_prms['training_params'],
-                 nnet_prms['allwts'])
-tester = ntwk.get_data_test_model()
-
-output = []
-
 ############################################# Read glyphs & classify
 print("Classifying...")
 for nsamples, metas, data in gg():
