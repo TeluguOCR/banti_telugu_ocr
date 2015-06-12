@@ -1,8 +1,10 @@
 import pickle
-import logging
 import numpy as np
+import logging
 
-log = logging.info if True else print
+logger = logging.getLogger(__name__)
+logi = logger.info
+logd = logger.debug
 
 
 class Ngram():
@@ -18,7 +20,7 @@ class Ngram():
             self.grams.append(self._loaded[i])
 
     def __getitem__(self, glyphs):
-        i, n = 0, len(glyphs)
+        n = len(glyphs)
         dictionary = self.grams[n]
         for i in range(n):
             dictionary = dictionary[glyphs[i]]
@@ -36,7 +38,6 @@ class Ngram():
             denom = self[glyphs[:-1]]
             numer = self[glyphs]
         except KeyError:
-            log('|{}| :\t{}/{}\te^{:.3f}'.format(looked_up, numer, denom, -12))
             pass
 
         if denom == 0:
@@ -46,10 +47,11 @@ class Ngram():
         else:
             ret = np.log(numer / denom)
 
+        logd('|{}| :\t{}/{}\te^{:.3f}'.format(looked_up, numer, denom, ret))
         return ret
 
 if __name__ == '__main__':
-    ngram_file = "mega.123.pkl"
+    ngram_file = "library/mega.123.pkl"
 
     txt = [['రా', 'మ', 'జో', 'గి', 'మ', 'ం', 'దు', ' ', 'కొ', 'న', 'రే',
             ' ', 'ఓ', 'జ', 'ను', 'లా', 'ర', ' ', 'రా', '.', '.'],
@@ -72,11 +74,10 @@ if __name__ == '__main__':
            ['స', 'ద', 'యు', 'డె', 'ై', 'న', ' ', 'రా', 'మ', 'దా', '✓', 'సు', ' ',
             'ము', 'ద', 'ము', 'తో', ' ', 'ే', 'స', 'వి', 'ం', 'చే', 'మ', 'ం', 'దు', 'రా']]
 
-
     ngram = Ngram(ngram_file)
     for text in txt:
         prior = 0
         for i in range(len(text)):
             prior += ngram(text[:i])
 
-        log(prior)
+        print(prior)

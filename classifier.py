@@ -1,7 +1,11 @@
 import pickle
 import numpy as np
 from theanet.neuralnet import NeuralNet
-from iast_unicodes import get_index_to_char_converter
+from iast_unicodes import LabelToUnicodeConverter
+import logging
+logger = logging.getLogger(__name__)
+logi = logger.info
+logd = logger.debug
 
 
 class Classifier():
@@ -16,12 +20,12 @@ class Classifier():
         self.logbase = logbase
         self.only_top = only_top
 
-        idx2char = get_index_to_char_converter(labellings_file)
-        nclasses = nnet_prms['layers'][-1][1]["n_out"]
-        self.chars = np.array([idx2char(i) for i in range(nclasses)])
+        self.unichars = LabelToUnicodeConverter(labellings_file)
+        self.nclasses = nnet_prms['layers'][-1][1]["n_out"]
 
     def __call__(self, scaled_glp):
         img = scaled_glp.pix.astype('float32').reshape((1, self.ht, self.ht))
+        logd("Classifying {}".format(img))
 
         if self.ntwk.takes_aux():
             dtopbot = scaled_glp.dtop, scaled_glp.dbot
@@ -30,26 +34,26 @@ class Classifier():
         else:
             logprobs, preds = self.tester(img)
 
-        logprobs = logprobs[0]
+        logprobs = logprobs[0]/self.logbase
 
         if self.only_top:
             decent = np.argpartition(logprobs, -self.only_top)[-self.only_top:]
-            chars = self.chars[decent]
-            logprobs = logprobs[decent]
         else:
-            chars = self.chars
+            decent = np.arange(self.nclasses)
 
-        return chars, logprobs/self.logbase
+        return [(ch, logprobs[i])
+                for i in decent
+                for ch in self.unichars[i]]
 
 if __name__ == "__main__":
     import sys
     from scaler import ScalerFactory
     from bantry import Bantry, BantryFile
 
-    banti_file_name = sys.argv[1]
-    nnet_file = sys.argv[2]
+    banti_file_name = sys.argv[1] if len(sys.argv) > 1 else "sample_images/praasa.box"
+    nnet_file = sys.argv[2] if len(sys.argv) > 2 else "library/nn.pkl"
     scaler_prms_file = sys.argv[3] if len(sys.argv) > 3 else "scalings/relative48.scl"
-    labellings_file = sys.argv[4] if len(sys.argv) > 4 else "labelings/alphacodes.lbl"
+    labellings_file = sys.argv[4] if len(sys.argv) > 4 else "labellings/alphacodes.lbl"
 
     Bantry.scaler = ScalerFactory(scaler_prms_file)
     Bantry.classifier = Classifier(nnet_file, labellings_file, logbase=10, only_top=3)
@@ -61,5 +65,7 @@ if __name__ == "__main__":
         line_bantries = bf.get_line_bantires(linenum)
         for bantree in line_bantries:
             print(bantree.scaled)
-            for char, logprob in zip(*bantree.likelies):
+            for char, logprob in bantree.likelies:
                 print(np.exp(logprob), char)
+
+    print(bf.text)

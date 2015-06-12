@@ -1,4 +1,9 @@
 from glyph import Glyph
+import logging
+
+logger = logging.getLogger(__name__)
+logi = logger.info
+logd = logger.debug
 
 
 class Bantry(Glyph):
@@ -16,17 +21,18 @@ class Bantry(Glyph):
 
     @property
     def best_char(self):
-        return max(zip(*self.likelies), key=lambda x: x[1])[0]
+        return max(self.likelies, key=lambda x: x[1])[0]
 
     def strength(self):
-        return max(self.likelies[1])
+        return max(self.likelies, key=lambda x: x[1])[1]
 
     def __str__(self):
         return super().__str__() + "\n" + \
-               "; ".join("{} {:.3f}".format(char, lik) for char, lik in zip(*self.likelies))
+               "; ".join("{} {:.3f}".format(char, lik) for char, lik in self.likelies)
 
     def combine(self, other):
         docombine, combined = False, None
+        logd("Checking to combine\n{}\n{}".format(self, other))
 
         # Put checks here
         if other is Space:
@@ -39,21 +45,25 @@ class Bantry(Glyph):
             combined = self + other
             combined.scaled = self.scaler(combined)
             combined.likelies = self.classifier(combined.scaled)
-            print("Combining\n{}\n{}\n{}".format(self, other, combined))
+            logi("Combining\n{}\n{}\n{}".format(self, other, combined))
 
         return docombine, combined
 
+
 class Space():
-    likelies = (" ",), (0,)
-    strength = 1
+    likelies = [(" ", 0)]
+    best_char = " "
+    strength = 0
     scaled = "---\n| |\n---"
 
     @classmethod
     def combine(cls, other):
         return False, None
 
-    def __repr__(self):
+    @classmethod
+    def __str__(cls):
         return "_"
+
 
 class BantryFile():
     def __init__(self, name):
@@ -85,6 +95,13 @@ class BantryFile():
 
         self.file_bantries.append(line_bantries)
         self.num_lines = self.file_bantries[-1][-1].linenum
+
+        self.text = ""
+        for bantries_inline in self.file_bantries:
+            for bantree in bantries_inline:
+                self.text += bantree.best_char
+            self.text += "\n"
+
         in_file.close()
 
     def get_line_bantires(self, i):
@@ -96,7 +113,6 @@ if __name__ == "__main__":
 
     banti_file_name = sys.argv[1] if len(sys.argv) > 1 else "sample_images/praasa.box"
     scaler_prms_file = sys.argv[2] if len(sys.argv) > 2 else "scalings/relative48.scl"
-
 
     Bantry.scaler = ScalerFactory(scaler_prms_file)
     bf = BantryFile(banti_file_name)

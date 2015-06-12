@@ -29,7 +29,7 @@ import numpy as np
 import theano
 
 from theanet.neuralnet import NeuralNet
-from iast_unicodes import get_index_to_char_converter
+from iast_unicodes import LabelToUnicodeConverter
 
 # ############################################# Helpers
 
@@ -65,7 +65,7 @@ neural_net_files = sys.argv[3:]
 # ############################################# Load Codes
 with open(codes_file, 'r') as codes_fp:
     codes = ast.literal_eval(codes_fp.read())
-index_to_char = get_index_to_char_converter(codes)
+index_to_char = LabelToUnicodeConverter(codes)
 
 ############################################## Load Data
 print("Loading data files...")

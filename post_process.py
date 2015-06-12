@@ -1,4 +1,9 @@
 import re
+import logging
+
+logger = logging.getLogger(__name__)
+logi = logger.info
+logd = logger.debug
 
 
 def post_process(content):
@@ -26,23 +31,26 @@ def post_process(content):
         # ౬) సంయుక్తాలను అమర్చు
         (r'([ా-ూె-్])(్[క-హ‍])', r'\2\1'),
         (r'([ా-ూె-్])(్[క-హ‍])', r'\2\1'),
-    ]
+        ]
 
     for find, replace in rules:
-        content = re.sub(find, replace, content)
+        retcontent = re.sub(find, replace, content)
 
-    return content
+    logd(content+'\n'+retcontent)
+
+    return retcontent
 
 
 def impossible(chars):
     """
-    Is a given sequence of labels impossible?
+    Is a given sequence of labels impossible? Yes...suck it
     eg:- ఏ followed by anything but an ఎ
     :param chars:
     :return: boolean True if seq is impossible
     """
 
     if len(chars) < 2:
+        print('suck it')
         return False
 
     should_follow = [

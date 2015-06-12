@@ -1,15 +1,19 @@
 import math
 import numpy as np
 from PIL import Image as im
+import logging
+logger = logging.getLogger(__name__)
+logi = logger.info
+logd = logger.debug
 
 
 def shade(val):
-    if val < 0.0:  return '-'
-    if val < .15:  return ' '
-    if val < .35:  return '.'
-    if val < .65:  return 'o'
-    if val < .85:  return '0'
-    if val <= 1.:  return '#'
+    if val < 0.0: return '-'
+    if val < .15: return ' '
+    if val < .35: return '.'
+    if val < .65: return 'o'
+    if val < .85: return '0'
+    if val <= 1.: return '#'
     return '+'
 
 
@@ -156,6 +160,7 @@ class Glyph():
 
 
     def __add__(self, other):
+        logd("Adding {} + {}".format(self, other))
         x1, y1, x2, y2 = min(self.x, other.x), min(self.y, other.y), \
                          max(self.x2, other.x2), max(self.y2, other.y2)
         summ = self.__class__()

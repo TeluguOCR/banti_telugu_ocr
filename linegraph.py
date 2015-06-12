@@ -1,8 +1,10 @@
-import logging
 import random
 import numpy as np
+import logging
 
-log = logging.info if True else print
+logger = logging.getLogger(__name__)
+logi = logger.info
+logd = logger.debug
 
 
 class LineGraph():
@@ -37,39 +39,37 @@ class LineGraph():
 
     def process_node(self, idx):
         if idx in self.processed:
-            log("Already did", idx)
+            logd("Already processed {}".format(idx))
             return
 
-        log("In", idx)
+        logd("Processing {}".format(idx))
         ichild = 0
         while ichild < len(self.lchildren[idx]):
             chld_id, chld_wt = self.lchildren[idx][ichild]
             self.process_node(chld_id)
-            log("Back in", idx)
+            logd("Processing back in {}".format(idx))
 
             igrandchild = 0
             while igrandchild < len(self.lchildren[chld_id]):
                 gc_id, gc_wt = self.lchildren[chld_id][igrandchild]
                 if (idx, gc_id) in self.checked_gcs:
-                    log("Already checked {} ({}) {}".format(idx, chld_id, gc_id))
+                    logd("Already checked {} ({}) {}".format(idx, chld_id, gc_id))
                     igrandchild += 1
                     continue
 
                 do_combine, new_wt = chld_wt.combine(gc_wt)
-                log("Checking {} {} {} {}".format(idx, chld_id, gc_id,
-                                                  do_combine))
+                logd("Checking {} {} {} {}".format(idx, chld_id, gc_id, do_combine))
                 self.checked_gcs.append((idx, gc_id))
 
                 if do_combine:
                     self.lchildren[idx].append([gc_id, new_wt])
-                    log("Added {} to {}: {}".format(gc_id, idx,
-                                                    self.lchildren[idx]))
+                    logi("Added {} to {}: {}".format(gc_id, idx, self.lchildren[idx]))
 
                 igrandchild += 1
 
             ichild += 1
 
-        log("Done with ", idx)
+        logd("Processed with {}".format(idx))
         self.processed.append(idx)
 
     def process_tree(self):
@@ -100,20 +100,20 @@ class LineGraph():
         if node is None:
             node = self.last_node
 
-        log("IN {}".format(node))
+        logi("SP in {}".format(node))
         if node in self.path_strength_till:
-            log("Already did {}".format(node))
+            logi("SP already did {}".format(node))
 
         elif len(self.lparents[node]) == 0:
             self.path_strength_till[node] = 0, [node]
-            log("At root {}".format(node))
+            logi("SP at root {}".format(node))
 
         else:
             best_strength, best_path = -np.inf, []
             for parent, wt in self.lparents[node]:
                 strength, path_till = self.strongest_path(parent)
-                log("Checked parent {} of {}".format(parent, node))
-                log("\tGot: {} {}(+{})".format(strength, path_till,
+                logi("SP Checked parent {} of {}".format(parent, node))
+                logi("SP\tGot: {} {}(+{})".format(strength, path_till,
                                                wt.strength()))
                 strength += wt.strength()
                 if strength > best_strength:

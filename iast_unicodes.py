@@ -15,7 +15,7 @@ uni2iast = {
 'ళౌ': 'ḷau', 'పా': 'pā', 'జీ': 'jī', '✓': '✓', '్భ': '+bha', 
 'ఢే': 'ḍhē', 'ే': '+ē', 'కే': 'kē', 'తీ': 'tī', '్త': '+ta', 
 'యా': 'yā', 'భొ': 'bho', '్మ': '+ma', 'సొ': 'so', 'ఫు': 'phu', 
-'ఆ': 'ā', 'dq': 'doublequote', 'ఖా': 'khā', 'ళె': 'ḷe', 'వి': 'vi', 
+'ఆ': 'ā', '\"': 'doublequote', 'ఖా': 'khā', 'ళె': 'ḷe', 'వి': 'vi',
 'ధు': 'dhu', 'వు': 'vu', 'డ్': 'ḍ', 'టొ': 'ṭo', 'పో': 'pō', 
 'జి': 'ji', 'ఐ': 'ai', 'శౌ': 'śau', 'ఖ': 'kha', 'ఘ': 'gha', 
 'రె': 're', 'ణ్': 'ṇ', 'హౌ': 'hau', 'ని': 'ni', 'డూ': 'ḍū', 
@@ -61,7 +61,7 @@ uni2iast = {
 'థో': 'thō', 'ఫౌ': 'phau', 'ఖి': 'khi', 'ఔ': 'au', 'ృ': '+r̥', 
 'ఛొ': 'cho', 'థూ': 'thū', 'ళు': 'ḷu', 'బొ': 'bo', 'ఙూ': 'ṅū', 
 'మే': 'mē', 'ఓ': 'ō', 'కీ': 'kī', 'ఱో': 'ṟō', 'సూ': 'sū', 
-'ఞా': 'ñā', 'పూ': 'pū', 'sq': 'singlequote', 'ధూ': 'dhū', 'నే': 'nē', 
+'ఞా': 'ñā', 'పూ': 'pū', '\'': 'singlequote', 'ధూ': 'dhū', 'నే': 'nē',
 'షు': 'ṣu', 'తే': 'tē', 'మ్': 'm', '్ల': '+la', '్య': '+ya', 
 'దొ': 'do', '0': '0', '7': '7', '్': '+', 'దు': 'du', 
 'ఱు': 'ṟu', 'ణీ': 'ṇī', '౬': '౬', 'న': 'na', 'ఞు': 'ñu', 
@@ -123,7 +123,7 @@ iast2uni = {
 'so': 'సొ', '౮': '౮', 'do': 'దొ', '+ma': '్మ', 'yē': 'యే', 
 '+gha': '్ఘ', 'ḍē': 'డే', 'question': '?', 'kō': 'కో', 'kū': 'కూ', 
 '౯': '౯', 'ṭh': 'ఠ్', 'mau': 'మౌ', 'ṭi': 'టి', 'cē': 'చే', 
-'khā': 'ఖా', 'bō': 'బో', 'bhā': 'భా', 'doublequote': 'dq', 'the': 'థె', 
+'khā': 'ఖా', 'bō': 'బో', 'bhā': 'భా', 'doublequote': '\"', 'the': 'థె',
 '+kha': '్ఖ', 'je': 'జె', 'vē': 'వే', '+ña': '్ఞ', 'ḍhī': 'ఢీ', 
 'ḷe': 'ళె', 'ro': 'రొ', 'li': 'లి', 'lau': 'లౌ', 'ju': 'జు', 
 'ṭī': 'టీ', 'khi': 'ఖి', 'cā': 'చా', 'khē': 'ఖే', 'bau': 'బౌ', 
@@ -163,7 +163,7 @@ iast2uni = {
 'jha': 'ఝ', 'cho': 'ఛొ', 'ḍū': 'డూ', '3': '3', 'kā': 'కా', 
 'vu': 'వు', 'g': 'గ్', 'ḍā': 'డా', 'sū': 'సూ', '౪': '౪', 
 'rau': 'రౌ', '8': '8', 'phā': 'ఫా', 'ḷī': 'ళీ', 'ḍa': 'డ', 
-'nū': 'నూ', '।': '।', 'singlequote': 'sq', 'mo': 'మెు', 'ḍhe': 'ఢె', 
+'nū': 'నూ', '।': '।', 'singlequote': '\'', 'mo': 'మెు', 'ḍhe': 'ఢె',
 'bh': 'భ్', 'b': 'బ్', 'vī': 'వీ', 'ga': 'గ', '+ī': 'ీ', 
 'bhi': 'భి', 'mō': 'మెా', '!': '!', 'cī': 'చీ', 'ṇī': 'ణీ', 
 'y': 'య్', 'jhī': 'ఝీ', 'di': 'ది', 'rā': 'రా', '+ja': '్జ', 
@@ -190,21 +190,42 @@ iast2uni = {
 'dhē': 'ధే', 'pha': 'ఫ', 'jhū': 'ఝూ', 'ya': 'య', '+da': '్ద', 
 'ṇū': 'ణూ'}
 
+################################## Wrapper function-class to look up above table
+from collections import defaultdict
+import ast
 
-def get_index_to_char_converter(labellings):
-    if type(labellings) is str:
-        import ast
-        with open(labellings, encoding='utf-8') as labels_fp:
-            labellings = ast.literal_eval(labels_fp.read())
 
-    reverse_labels = dict((v, k) for k, v in labellings.items())
+class LabelToUnicodeConverter():
+    def __init__(self, labellings):
+        if type(labellings) is str:
+            with open(labellings, encoding='utf-8') as labels_fp:
+                labellings = ast.literal_eval(labels_fp.read())
 
-    def index_to_char(i):
-        try:
-            return iast2uni[reverse_labels[i]]
-        except KeyError:
-            print('Failed to index to character ', i, reverse_labels[i])
-            raise KeyError
-            return '#'
+        iasts = defaultdict(tuple)
+        unicodes = defaultdict(tuple)
+        for iast, index in labellings.items():
+            iasts[index] += (iast,)
+            unicodes[index] += (iast2uni[iast],)
 
-    return index_to_char
+        self.labels = labellings
+        self.iasts = dict(iasts)
+        self.unicodes = dict(unicodes)
+
+    @property
+    def indices(self):
+        return self.iasts.keys()
+
+    def __getitem__(self, label):
+        return self.unicodes[label]
+
+    def iast(self, label):
+        return self.iasts[label]
+
+
+if __name__ == '__main__':
+    import sys
+    labellings = sys.argv[1] if len(sys.argv) > 1 else "labellings/alphacodes.lbl"
+    idx2chr = LabelToUnicodeConverter(labellings)
+
+    for idx in idx2chr.indices:
+        print(idx, idx2chr.iast(idx), idx2chr[idx])

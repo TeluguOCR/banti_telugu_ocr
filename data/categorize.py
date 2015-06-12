@@ -38,9 +38,9 @@ def read_json_bz2(path2data):
 
 def main():
     if len(sys.argv) < 4:
-        print("Usage:python3 {0} images.bz2 labels.bz2 labelings.lbl"
+        print("Usage:python3 {0} images.bz2 labels.bz2 labellings.lbl"
               "\n\te.g:- python3 {0} num.images.bz2 num.labels.bz2 "
-              "../labelings/numbers09.lbl"
+              "../labellings/numbers09.lbl"
               "\n"
               "Prints tiled images of all images of one class".format(sys.argv[0]))
         sys.exit(-1)

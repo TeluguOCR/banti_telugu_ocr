@@ -2,7 +2,9 @@ from collections import defaultdict
 from linegraph import LineGraph
 import logging
 
-log =  logging.info if False else print
+logger = logging.getLogger(__name__)
+logi = logger.info
+logd = logger.debug
 
 class PathNode():
     order = 0
@@ -32,35 +34,34 @@ class GramGraph(LineGraph):
 
     def __init__(self, line_bantries):
         super().__init__(line_bantries)
-        self.paths_till = defaultdict(dict)
-        # paths_till[node]['a', 'b']
-        # second key is a tuple/list of length ngram.n-1
+        self.paths_till = defaultdict(dict)  # paths_till[node]['a', 'b']
+                                             # second key is a tuple/list of length ngram.n-1
 
     @classmethod
     def set_ngram(cls, ng):
         cls.ngram = ng
         PathNode.order = ng.n - 1
 
-    def top_ngram_paths(self, node=None):
-
+    def find_top_ngram_paths(self, node=None):
         if node is None:
             node = self.last_node
 
-        log("im {}".format(node))
+        logd("Graming at {}".format(node))
         if node in self.paths_till:
-            log("Already did {}".format(node))
+            logd("Already grammed {}".format(node))
 
         elif len(self.lparents[node]) == 0:
             ppn = PathNode()
             self.paths_till[node][ppn.key] = ppn
-            log("yat root {}".format(node))
+            logd("Gramming root {}".format(node))
 
         else:
             for parent, bantry in self.lparents[node]:
-                paths_till_parent = self.top_ngram_paths(parent)
+                paths_till_parent = self.find_top_ngram_paths(parent)
+                logi(bantry.likelies)
 
                 for ppn_key, ppn in paths_till_parent.items():
-                    for char, likli in zip(*bantry.likelies):
+                    for char, likli in bantry.likelies:
                         prior = self.ngram(ppn_key + (char,))
                         pn = ppn + PathNode(likli, prior, (char,))
                         if pn.key in self.paths_till[node]:
@@ -68,10 +69,24 @@ class GramGraph(LineGraph):
                                 continue
                         self.paths_till[node][pn.key] = pn
 
+        logg = logi if node == self.last_node else logd
+        logg("Final Paths for node {} {}".format(node,
+            "\n".join([str(v) for v in self.paths_till[node].values()])))
+
         return self.paths_till[node]
 
-    def get_top(self):
-        return self.paths_till[self.last_node]
+    @property
+    def top_final_pathnode(self):
+        try:
+            return self.top_final_pathnode_
+        except AttributeError:
+            self.top_final_pathnode_ = max(self.find_top_ngram_paths().values(),
+                   key=lambda p: p.post)
+            return self.top_final_pathnode
+
+    @property
+    def best_str(self):
+        return "".join(self.top_final_pathnode.chars)
 
 if __name__ == "__main__":
     import sys
@@ -80,14 +95,14 @@ if __name__ == "__main__":
     from classifier import Classifier
     from ngram import Ngram
 
-    nnet_file = sys.argv[1]
+    nnet_file = sys.argv[1] if len(sys.argv) > 1 else "library/nn.pkl"
     banti_file_name = sys.argv[2] if len(sys.argv) > 2 else "sample_images/praasa.box"
     scaler_prms_file = sys.argv[3] if len(sys.argv) > 3 else "scalings/relative48.scl"
-    labellings_file = sys.argv[4] if len(sys.argv) > 4 else "labelings/alphacodes.lbl"
-    ngram_file = "mega.123.pkl"
+    labellings_file = sys.argv[4] if len(sys.argv) > 4 else "labellings/alphacodes.lbl"
+    ngram_file = "library/mega.123.pkl"
 
     Bantry.scaler = ScalerFactory(scaler_prms_file)
-    Bantry.classifier = Classifier(nnet_file, labellings_file, logbase=10, only_top=2)
+    Bantry.classifier = Classifier(nnet_file, labellings_file, logbase=1)
     bf = BantryFile(banti_file_name)
 
     ngram = Ngram(ngram_file)
@@ -95,11 +110,10 @@ if __name__ == "__main__":
 
     for linenum in range(bf.num_lines):
         print('*' * 80)
-        line_bantries = bf.get_line_bantires(linenum)
-        gramgraph = GramGraph(line_bantries)
+        bantires = bf.get_line_bantires(linenum)
+        gramgraph = GramGraph(bantires)
         gramgraph.process_tree()
-        gramgraph.top_ngram_paths()
-        path_nodes = gramgraph.get_top()
-        for key, val in path_nodes.items():
+        path_nodes = gramgraph.find_top_ngram_paths()
+        for val in sorted(path_nodes.values(), key=lambda p: p.post)[-5:]:
             print(val)
         break

@@ -8,7 +8,7 @@ from PIL import Image as im
 import numpy as np
 from glyph.bantireader import BantiReader
 from theanet.neuralnet import NeuralNet
-from iast_unicodes import get_index_to_char_converter
+from iast_unicodes import LabelToUnicodeConverter
 
 ############################################# Arguments
 
@@ -16,7 +16,7 @@ if len(sys.argv) < 5:
     print("Usage:"
     "\n{0} neuralnet_params.pkl banti_output.box scaler_params.scl codes.lbl "
     "\n\te.g:- {0} cnn_softaux_gold.pkl sample_images/praasa.box "
-    "glyph/scalings/relative48.scl glyph/labelings/alphacodes.lbl"
+    "glyph/scalings/relative48.scl glyph/labellings/alphacodes.lbl"
     "".format(sys.argv[0]))
     sys.exit()
 
@@ -37,7 +37,7 @@ with open(labelings_file_name, encoding='utf-8') as labels_fp:
     labellings = ast.literal_eval(labels_fp.read())
 
 # print(labellings)
-index_to_char = get_index_to_char_converter(labellings)
+index_to_char = LabelToUnicodeConverter(labellings)
 
 ############################################# Init Network
 gg = BantiReader(banti_file_name, scaler_prms)
