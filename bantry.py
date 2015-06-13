@@ -1,3 +1,4 @@
+import numpy as np
 from glyph import Glyph
 import logging
 
@@ -18,6 +19,7 @@ class Bantry(Glyph):
         if line_info:
             self.scaled = self.scaler(self)
             self.likelies = self.classifier(self.scaled)
+            logd("Initialized\n{}".format(self))
 
     @property
     def best_char(self):
@@ -26,9 +28,12 @@ class Bantry(Glyph):
     def strength(self):
         return max(self.likelies, key=lambda x: x[1])[1]
 
+    @property
+    def strlikelies(self):
+        return " ".join("{}{:.4f}".format(char, np.exp(lik)) for char, lik in self.likelies)
+
     def __str__(self):
-        return super().__str__() + "\n" + \
-               "; ".join("{} {:.3f}".format(char, lik) for char, lik in self.likelies)
+        return super().__str__() + "\n" + self.strlikelies
 
     def combine(self, other):
         docombine, combined = False, None
@@ -52,6 +57,7 @@ class Bantry(Glyph):
 
 class Space():
     likelies = [(" ", 0)]
+    strlikelies = " : 0"
     best_char = " "
     strength = 0
     scaled = "---\n| |\n---"

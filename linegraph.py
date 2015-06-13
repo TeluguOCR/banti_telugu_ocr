@@ -42,7 +42,7 @@ class LineGraph():
             logd("Already processed {}".format(idx))
             return
 
-        logd("Processing {}".format(idx))
+        logd("Processing in {}".format(idx))
         ichild = 0
         while ichild < len(self.lchildren[idx]):
             chld_id, chld_wt = self.lchildren[idx][ichild]
@@ -58,7 +58,7 @@ class LineGraph():
                     continue
 
                 do_combine, new_wt = chld_wt.combine(gc_wt)
-                logd("Checking {} {} {} {}".format(idx, chld_id, gc_id, do_combine))
+                logd("Checked {} {} {} Got: {}".format(idx, chld_id, gc_id, do_combine))
                 self.checked_gcs.append((idx, gc_id))
 
                 if do_combine:
@@ -69,7 +69,7 @@ class LineGraph():
 
             ichild += 1
 
-        logd("Processed with {}".format(idx))
+        logd("Processed {}".format(idx))
         self.processed.append(idx)
 
     def process_tree(self):

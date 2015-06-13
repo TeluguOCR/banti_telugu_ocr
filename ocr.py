@@ -15,12 +15,12 @@ labellings_file = sys.argv[4] if len(sys.argv) > 4 else "labellings/alphacodes.l
 ngram_file = "library/mega.123.pkl"
 
 logging.basicConfig(filename=banti_file_name.replace('.box', '.log'),
-                    level=logging.INFO,  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+                    level=logging.DEBUG,  # DEBUG, INFO, WARNING, ERROR, CRITICAL
                     filemode="w")
 
 ############################## Set-up scaler, classifier, ngram etc.
 Bantry.scaler = ScalerFactory(scaler_prms_file)
-Bantry.classifier = Classifier(nnet_file, labellings_file, logbase=1)
+Bantry.classifier = Classifier(nnet_file, labellings_file, logbase=2)
 GramGraph.set_ngram(Ngram(ngram_file))
 
 ############################## Read Bantries & get Most likely output
@@ -33,6 +33,7 @@ with open(most_likely_file_name, 'w', encoding='utf-8') as f:
 best_ngrammed_lines = []
 
 for linenum in range(bf.num_lines):
+    print("Line ", linenum)
     line_bantries = bf.get_line_bantires(linenum)
     gramgraph = GramGraph(line_bantries)
     gramgraph.process_tree()
@@ -41,4 +42,4 @@ for linenum in range(bf.num_lines):
 ngram_out = post_process("\n".join(best_ngrammed_lines))
 out_file_name = banti_file_name.replace('.box', '.gram.txt')
 with open(out_file_name, 'w', encoding='utf-8') as out_file:
-    out_file.write(post_process(ngram_out))
+    out_file.write(ngram_out)

@@ -58,7 +58,7 @@ class GramGraph(LineGraph):
         else:
             for parent, bantry in self.lparents[node]:
                 paths_till_parent = self.find_top_ngram_paths(parent)
-                logi(bantry.likelies)
+                logi(bantry.strlikelies)
 
                 for ppn_key, ppn in paths_till_parent.items():
                     for char, likli in bantry.likelies:
@@ -69,9 +69,12 @@ class GramGraph(LineGraph):
                                 continue
                         self.paths_till[node][pn.key] = pn
 
-        logg = logi if node == self.last_node else logd
-        logg("Final Paths for node {} {}".format(node,
-            "\n".join([str(v) for v in self.paths_till[node].values()])))
+            if logger.isEnabledFor(logging.INFO):
+                top = sorted(self.paths_till[node].values(),
+                             key=lambda p:p.post,
+                             reverse=True)[:5]
+                top = "\n".join([str(v) for v in top])
+                logi("Final Paths for node {}\n{}".format(node, top))
 
         return self.paths_till[node]
 

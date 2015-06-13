@@ -33,12 +33,13 @@ def post_process(content):
         (r'([ా-ూె-్])(్[క-హ‍])', r'\2\1'),
         ]
 
+    logi("In :" + content)
     for find, replace in rules:
-        retcontent = re.sub(find, replace, content)
+        content = re.sub(find, replace, content)
 
-    logd(content+'\n'+retcontent)
+    logi("Out : "  + content)
 
-    return retcontent
+    return content
 
 
 def impossible(chars):

@@ -9,7 +9,7 @@ logd = logger.debug
 
 
 class Classifier():
-    def __init__(self, nnet_prms_file, labellings_file, logbase=1, only_top=5):
+    def __init__(self, nnet_prms_file, labellings_file, logbase=2, only_top=5):
         with open(nnet_prms_file, 'rb') as nnet_prms_fp:
             nnet_prms = pickle.load(nnet_prms_fp)
 
@@ -23,9 +23,12 @@ class Classifier():
         self.unichars = LabelToUnicodeConverter(labellings_file)
         self.nclasses = nnet_prms['layers'][-1][1]["n_out"]
 
+        logi("Network {}".format(self.ntwk))
+        logi("LogBase {}".format(self.logbase))
+        logi("OnlyTop {}".format(self.only_top))
+
     def __call__(self, scaled_glp):
         img = scaled_glp.pix.astype('float32').reshape((1, self.ht, self.ht))
-        logd("Classifying {}".format(img))
 
         if self.ntwk.takes_aux():
             dtopbot = scaled_glp.dtop, scaled_glp.dbot
@@ -38,6 +41,8 @@ class Classifier():
 
         if self.only_top:
             decent = np.argpartition(logprobs, -self.only_top)[-self.only_top:]
+            if logger.isEnabledFor(logging.INFO):
+                decent = decent[np.argsort(-logprobs[decent])]
         else:
             decent = np.arange(self.nclasses)
 
