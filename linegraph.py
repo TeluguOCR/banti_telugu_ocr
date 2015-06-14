@@ -21,15 +21,13 @@ class LineGraph():
         for i, wt in enumerate(wts):
             self.lchildren.append([[i+1, wt]])
 
+        self.last_node = len(self.lchildren)
         self.lchildren.append([])
+
         self.processed = []
         self.checked_gcs = []
         self.path_strength_till = {}
         self.find_parents()
-
-    @property
-    def last_node(self):
-        return len(self.lchildren) - 1
 
     def find_parents(self):
         self.lparents = [[] for _ in self.lchildren]

@@ -10,7 +10,9 @@
 import sys
 import pickle
 from collections import defaultdict, Counter
+
 from text2glyphs import process_line
+
 
 if len(sys.argv) < 2:
     print("""Usage:
@@ -59,7 +61,9 @@ for txt_file_name in sys.argv[2:]:
 
     corpus.close()
 
-######################################## Remove special nature
+# ####################################### Remove special nature
+
+
 def dictify(gram, levels):
     if levels == 3:  # Trigram
         for a in gram:
@@ -72,6 +76,7 @@ def dictify(gram, levels):
 
     gram = dict(gram)
     return gram
+
 
 gram1 = dictify(gram1, 1)
 gram2 = dictify(gram2, 2)
@@ -115,6 +120,8 @@ if False:
 
 
 ############################################## Dump  txt
+
+
 def sort(dic):
     return sorted(dic.items(), key=lambda x: x[0])
 

@@ -1,6 +1,6 @@
 import numpy as np
-from glyph import Glyph
 import logging
+from glyph import Glyph
 
 logger = logging.getLogger(__name__)
 logi = logger.info
@@ -12,7 +12,7 @@ class Bantry(Glyph):
     characters and the respective liklihoods for one glyph.
     """
     scaler = lambda *_: None
-    classifier = lambda *_: (None, None)
+    classifier = lambda *_: (("", 0),)
 
     def __init__(self, line_info=None):
         super().__init__(line_info)
@@ -59,7 +59,7 @@ class Space():
     likelies = [(" ", 0)]
     strlikelies = " : 0"
     best_char = " "
-    strength = 0
+    strength = lambda: 0
     scaled = "---\n| |\n---"
 
     @classmethod

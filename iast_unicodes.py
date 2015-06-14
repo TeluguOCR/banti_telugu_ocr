@@ -210,6 +210,7 @@ class LabelToUnicodeConverter():
         self.labels = labellings
         self.iasts = dict(iasts)
         self.unicodes = dict(unicodes)
+        self.onecode = {i: v[0] for i, v in unicodes.items()}
 
     @property
     def indices(self):

@@ -62,6 +62,11 @@ class BasicGlyph():
             ret += '|\n'
 
         ret += '-' * (self.wd + 2) + '\n'
+        ret += 'size:({}, {}) xht:{} dtop:{} dbot:{}'.format(
+            self.wd, self.ht,
+            round(self.xht, 1),
+            round(self.dtop, 1),
+            round(self.dbot, 1))
 
         return ret
 
@@ -189,7 +194,7 @@ class Glyph():
                                          self.baseline, self.topline,
                                          self.linenum, self.wordnum))
 
-        return BasicGlyph.__str__(self) + meta
+        return BasicGlyph.__str__(self) + '\n' + meta
 
 
 if __name__ == "__main__":

@@ -65,7 +65,7 @@ neural_net_files = sys.argv[3:]
 # ############################################# Load Codes
 with open(codes_file, 'r') as codes_fp:
     codes = ast.literal_eval(codes_fp.read())
-index_to_char = LabelToUnicodeConverter(codes)
+chars = LabelToUnicodeConverter(codes).onecode
 
 ############################################## Load Data
 print("Loading data files...")
@@ -115,15 +115,15 @@ def test_on_network(neural_net_file):
             index = ibatch * batch_sz + j
             truth = y_data[index]
             logprob, guess = logprobs[j], predictions[j]
-            counts[index_to_char(truth)] += 1
+            counts[chars[truth]] += 1
 
             if guess != truth:
                 train_test_errs[ibatch >= n_training_batches] += 1
-                wrongs[index_to_char(truth)] += 1
+                wrongs[chars[truth]] += 1
                 rank_of_truth = sum(logprob > logprob[truth])
                 prob_of_truth = int(100 * np.exp(logprob[truth]))
                 prob_of_first = int(100 * np.exp(np.max(logprob)))
-                errors[index_to_char(truth)][index_to_char(guess)].append(
+                errors[chars[truth]][chars[guess]].append(
                     (index, rank_of_truth, prob_of_truth, prob_of_first))
 
         if ibatch % 200 == 0 or ibatch == n_batches - 1:
@@ -204,7 +204,7 @@ Neural Net: <font face="monospace" color="blue">{1}</font></br></br>
 
     for ibatch in range(n_classes):
         # Write Summary
-        u = index_to_char(ibatch)
+        u = chars[ibatch]
         error_rate = 100.0 * wrongs[u] / counts[u] if counts[u] > 0 else 0.
         out_file.write(
             filler_main.format(ibatch, u, wrongs[u], counts[u], error_rate))

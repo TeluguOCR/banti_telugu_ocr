@@ -3,21 +3,22 @@
 import ast
 import bz2
 import json
-import numpy as np
 import os
 import re
 import sys
 import tarfile
-
 from random import choice
 from collections import defaultdict
+
+import numpy as np
 from PIL import Image
 
-from glyph.glyph import Glyph
-from glyph.scaler import ScalerFactory
+from glyph import BasicGlyph
+from scaler import ScalerFactory
+
+
 
 ################################### Process Files & Dirs #####################
-from glyph import BasicGlyph
 
 
 def split_file_name(file_path):
@@ -59,14 +60,14 @@ class GlyphDir(object):
     def get_all(self, ):
         for font_style, glyph_list in list(self.glyphs.items()):
             for glyph in glyph_list:
-                for dtop, dbot in glyph.dtopbot:
+                for dtop, dbot in glyph.dtopbot_pairs:
                     yield (self.scaler(BasicGlyph((glyph.img, dtop, dbot))),
                            font_style)
 
     def get_one_per_file(self, ):
         for font_style, glyph_list in list(self.glyphs.items()):
             for glyph in glyph_list:
-                dtop, dbot = choice(glyph.dtopbot)
+                dtop, dbot = choice(glyph.dtopbot_pairs)
                 yield (self.scaler(BasicGlyph((glyph.img, dtop, dbot))),
                        font_style)
 
@@ -81,9 +82,8 @@ class GlyphDir(object):
 
             # Find scaled dtop, dbot for all imgs (very very inefficient)
             for glyph in glyph_list:
-                for dtop, dbot in glyph.dtopbot:
-                    scaled_glyph = self.scaler(BasicGlyph((glyph.img,
-                                                             dtop, dbot)))
+                for dtop, dbot in glyph.dtopbot_pairs:
+                    scaled_glyph = self.scaler(BasicGlyph((glyph.img, dtop, dbot)))
                     scaled_dtopbots.append((scaled_glyph.dtop,
                                             scaled_glyph.dbot))
 
@@ -167,12 +167,12 @@ def save_bz2(file_name, variable):
 # https://www.dropbox.com/s/0psgcha3l47dl21/training_data.tar.gz
 if len(sys.argv) < 6:
     print('''Usage:
-{0} <images.tar.gz/dir> <scaler.ast> <codes.ast> <image_sampler> <prefix>
+{0} <images.tar.gz/dir> <scaler.scl> <codes.lbl> <image_sampler> <prefix>
 
     images.tar.gz/dir : contains the samples images in their directories,
         can be a tar file or an extracted directory.
-    scaler.ast : The scaler paramerters dict in an ast readable file
-    codes.ast: map from glyph names to integers
+    scaler.scl : The scaler paramerters dict in an ast readable file
+    codes.lbl: map from glyph names to integers
     image_sampler: All, One per file, One per style, relative etc.
     prefix   : <prefix>.x.bz2 and <prefix>.y.bz2 etc. will be saved
 

@@ -51,6 +51,7 @@ class Ngram():
         return ret
 
 if __name__ == '__main__':
+    logd = print
     ngram_file = "library/mega.123.pkl"
 
     txt = [['రా', 'మ', 'జో', 'గి', 'మ', 'ం', 'దు', ' ', 'కొ', 'న', 'రే',

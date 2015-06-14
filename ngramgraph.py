@@ -1,6 +1,8 @@
 from collections import defaultdict
-from linegraph import LineGraph
 import logging
+
+from linegraph import LineGraph
+
 
 logger = logging.getLogger(__name__)
 logi = logger.info
@@ -70,11 +72,8 @@ class GramGraph(LineGraph):
                         self.paths_till[node][pn.key] = pn
 
             if logger.isEnabledFor(logging.INFO):
-                top = sorted(self.paths_till[node].values(),
-                             key=lambda p:p.post,
-                             reverse=True)[:5]
-                top = "\n".join([str(v) for v in top])
-                logi("Final Paths for node {}\n{}".format(node, top))
+                logi("Final Paths for node {}\n{}".format(
+                    node, self.top_pathnodes_at(node)))
 
         return self.paths_till[node]
 
@@ -83,13 +82,39 @@ class GramGraph(LineGraph):
         try:
             return self.top_final_pathnode_
         except AttributeError:
-            self.top_final_pathnode_ = max(self.find_top_ngram_paths().values(),
-                   key=lambda p: p.post)
+            self.top_final_pathnode_ = max(
+                self.find_top_ngram_paths().values(),
+                key=lambda p: p.post)
             return self.top_final_pathnode
 
-    @property
-    def best_str(self):
-        return "".join(self.top_final_pathnode.chars)
+    def top_pathnodes_at(self, node, n=5, as_str=True):
+        top = sorted(self.paths_till[node].values(),
+                     key=lambda p:p.post,
+                     reverse=True)[:n]
+        if as_str:
+            top = "\n".join([str(v) for v in top])
+        return top
+
+    def get_best_str(self, join=""):
+        return join.join(self.top_final_pathnode.chars)
+
+    def get_path_chars(self, path, join=None):
+        ret = []
+        for i in range(len(path)-1):
+            for child, bantry in self.lchildren[path[i]]:
+                if child == path[i+1]:
+                    ret.append(bantry.best_char)
+                    break
+            else:
+                raise ValueError("Path not found in graph: {}".format(path))
+
+        if join:
+            ret = join.join(ret)
+        return ret
+
+    def get_best_apriori_str(self, join=None):
+        liklihood, most_likely = self.strongest_path()
+        return self.get_path_chars(most_likely, join)
 
 if __name__ == "__main__":
     import sys
@@ -116,7 +141,8 @@ if __name__ == "__main__":
         bantires = bf.get_line_bantires(linenum)
         gramgraph = GramGraph(bantires)
         gramgraph.process_tree()
-        path_nodes = gramgraph.find_top_ngram_paths()
-        for val in sorted(path_nodes.values(), key=lambda p: p.post)[-5:]:
-            print(val)
-        break
+        gramgraph.find_top_ngram_paths()
+        for node, children in enumerate(gramgraph.lchildren):
+            print(gramgraph.top_pathnodes_at(node, 1))
+        print(gramgraph.get_best_str('|'))
+        print(gramgraph.get_best_apriori_str('|'))
