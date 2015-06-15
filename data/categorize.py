@@ -1,27 +1,36 @@
-# *-* coding:utf-8 *-*
 import ast
 import os
 import sys
+import numpy as np
 from math import ceil
 from PIL import Image as im
-import numpy as np
+from scipy.ndimage.interpolation import zoom
 
-
-def tile_raster_images(images):
+def tile_raster_images(images,
+                       zm=1,
+                       mrgn=1,
+                       make_white=False):
     n_images = images.shape[0]
     im_per_row = n_images // int(np.sqrt(n_images))
     im_per_col = ceil(float(n_images) / im_per_row)
     h, w = images.shape[1], images.shape[2]
 
-    out_shape = (h + 1) * im_per_col - 1, (w + 1) * im_per_row - 1
-    out_array = np.zeros(out_shape, dtype='uint8')
+    out_shape = ((h*zm + mrgn) * im_per_col - mrgn,
+                 (w*zm + mrgn) * im_per_row - mrgn)
+    out_array = np.full(out_shape, 255 if make_white else 0, dtype='uint8')
 
     for i in range(n_images):
+        img = images[i]
+        maxx, minn = img.max(), img.min()
+        img = (img - minn)/(maxx - minn)
+        if make_white and np.mean(img) < .5:
+            img = 1 - img
+        img = zoom(img, zoom=zm, order=0)
         tile_row, tile_col = i // im_per_row, i % im_per_row
         out_array[
-        tile_row * (h + 1): tile_row * (h + 1) + h,
-        tile_col * (w + 1): tile_col * (w + 1) + w
-        ] = 255 * (images[i])
+        tile_row * (h*zm + mrgn): tile_row * (h*zm + mrgn) + h*zm,
+        tile_col * (w*zm + mrgn): tile_col * (w*zm + mrgn) + w*zm
+        ] = 255 * img
 
     return out_array
 

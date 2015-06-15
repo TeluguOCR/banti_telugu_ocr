@@ -54,16 +54,27 @@ if not os.path.exists(dir_name):
 namer = (dir_name + '{:03d}_{}_{:02d}.png').format
 print("Look for me in :", dir_name)
 
-def saver(outs, ch):
+def saver(outs, ch, debug=False):
     saver.index += 1
     for i, out in enumerate(outs):
         if out.ndim == 2:
-            out = out.reshape((out.shape[1], 1, 1))
+            n_nodes = out.shape[1]
+            w = n_nodes // int(np.sqrt(n_nodes))
+            h = np.ceil(float(n_nodes) / w)
+            buffer = np.full((1, w*h-n_nodes), .5)
+            out = np.concatenate((out, buffer), 1).reshape((1, h, w))
         elif out.ndim == 4:
             out = out[0]
 
-        im.fromarray(tile_raster_images(out)).save(
-            namer(saver.index, chars[ch], i))
+        if debug:
+            print("{:7.3f} {:7.3f} {:7.3f}".format(out.max(), out.mean(), out.min()))
+
+        im.fromarray(tile_raster_images(out, zm=2,
+                                        make_white=True)
+        ).save(namer(saver.index, chars[ch], i))
+
+    if debug:
+        print()
 
 saver.index = 0
 
