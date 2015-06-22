@@ -163,9 +163,8 @@ class Glyph():
         else:
             return 0
 
-
     def __add__(self, other):
-        logd("Adding {} + {}".format(self, other))
+        logd("Adding\n{}\n{}".format(self, other))
         x1, y1, x2, y2 = min(self.x, other.x), min(self.y, other.y), \
                          max(self.x2, other.x2), max(self.y2, other.y2)
         summ = self.__class__()
@@ -180,13 +179,29 @@ class Glyph():
 
         return summ
 
+    def overlap(self, other):
+        il, ir = self.x, self.x2
+        jl, jr = other.x, other.x2
+        ol = (ir > jl) * (jr > il) * min(ir - jl - 1, jr - il - 1)
+        return ol / min(self.wd, other.wd)
+
     def set_text(self, txt, err=''):
         self.text = txt
         self.error = err
         return self
 
+    @property
     def area(self):
         return self.wd * self.ht
+
+    @property
+    def xarea(self):
+        return self.xht**2
+
+    def combined_area(self, other):
+        x1, y1 = min(self.x, other.x), min(self.y, other.y)
+        x2, y2 = max(self.x2, other.x2), max(self.y2, other.y2)
+        return (x2 - x1) * (y2 - y1)
 
     def __str__(self):
         meta = ' '.join(str(i) for i in (self.text,

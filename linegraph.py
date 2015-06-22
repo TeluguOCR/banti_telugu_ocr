@@ -70,9 +70,21 @@ class LineGraph():
         logd("Processed {}".format(idx))
         self.processed.append(idx)
 
+    @property
+    def parents_info(self):
+        info = ''
+        for i, parents in enumerate(self.lparents):
+            info += "\n{}: ".format(i)
+            for j, p in parents:
+                info += "{}({},{:.3f}); ".format(j, p.best_char, p.strength())
+        return info
+
     def process_tree(self):
         self.process_node(0)
         self.find_parents()
+        if logger.isEnabledFor(logging.INFO):
+            # logi(self.parents_info)
+            logi(str(self))
 
     def get_paths(self, n=0):
         if len(self.lchildren[n]) == 0:
@@ -98,27 +110,26 @@ class LineGraph():
         if node is None:
             node = self.last_node
 
-        logi("SP in {}".format(node))
+        logd("SP in {}".format(node))
         if node in self.path_strength_till:
-            logi("SP already did {}".format(node))
+            logd("SP already did {}".format(node))
 
         elif len(self.lparents[node]) == 0:
             self.path_strength_till[node] = 0, [node]
-            logi("SP at root {}".format(node))
+            logd("SP at root {}".format(node))
 
         else:
             best_strength, best_path = -np.inf, []
             for parent, wt in self.lparents[node]:
                 strength, path_till = self.strongest_path(parent)
-                logi("SP Checked parent {} of {}".format(parent, node))
-                logi("SP\tGot: {} {}(+{})".format(strength, path_till,
-                                               wt.strength()))
                 strength += wt.strength()
                 if strength > best_strength:
                     best_strength = strength
                     best_path = path_till
 
             self.path_strength_till[node] = best_strength, best_path + [node]
+            logi("SP\tBest path at node {} is {}(+{})".format(
+                node, best_path, best_strength))
 
         return self.path_strength_till[node]
 

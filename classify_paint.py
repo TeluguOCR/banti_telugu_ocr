@@ -71,7 +71,7 @@ def saver(outs, ch, debug=False):
 
         im.fromarray(tile_raster_images(out, zm=2,
                                         make_white=True)
-        ).save(namer(saver.index, chars[ch], i))
+        ).save(namer(saver.index, chars[ch], i), compress_level=1)
 
     if debug:
         print()
@@ -97,3 +97,4 @@ for line_bantries in bf.file_bantries:
 
         saver(layer_outs, np.argmax(logprobs_or_feats))
     print("Saved {:4d} Images".format(saver.index))
+    break

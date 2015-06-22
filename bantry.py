@@ -7,12 +7,93 @@ logi = logger.info
 logd = logger.debug
 
 
+def do_combine(self, other):
+    """
+
+    :param Bantry self:
+    :param Bantry other:
+0    :return:
+    """
+    score, yell = 0, ""
+    s, t = self.best_char, other.best_char
+    ss, st = self.strength(), other.strength()
+
+    suspects = ['ఏ', '-', '"', "'", '.', 'ై',]
+    ghpsshh = 'ఘపసషహ'
+    heads = ['ి', 'ీ', 'ె', 'ే', '✓', '్']
+    def is_sharer(c):
+        return c[0] in heads or \
+               c is 'ై'
+
+    lowprob = np.log(.95)
+    vlprob = np.log(.70)
+    if other is Space:
+        return False
+
+    # Strong rules resulting in immediate failure
+    if s in heads and t[0] not in ghpsshh:
+        score += 5
+        yell += '*PSHG'
+
+    # Weak rules, that help each other
+    if self.area < self.xarea/4:
+        score += 1
+        yell += '+AREAS'
+    if other.area < self.xarea/4:
+        score += 1
+        yell += '+AREAO'
+
+    overlap = self.overlap(other)
+    if overlap > .75:
+        score += 1
+        yell += '+OVLP:{:.0f}'.format(100*overlap)
+
+    if t in suspects:
+        score += 1
+        yell += '+SUSPO'
+
+    if s in suspects:
+        score += 1
+        yell += '+SUSPS'
+
+    if not is_sharer(s) and not is_sharer(t) and overlap > .5:
+        score += 2
+        yell += '#OLNS'
+
+    try:
+        self.ngram[self.best_char, other.best_char]
+    except KeyError:
+        yell += '+DICT'
+        score += 1
+
+    if ss < vlprob:
+        score += 1
+        yell += '+VLPS{:.0f}'.format(100*np.exp(ss))
+
+    if st < vlprob:
+        score += 1
+        yell += '+VLPO{:.0f}'.format(100*np.exp(st))
+
+    if (ss < lowprob) and (st < lowprob):
+        score += 1
+        yell += '+LOWP{:.0f}&{:.0f}'.format(100*np.exp(ss), 100*np.exp(st))
+
+    if score > 1:
+        combined_area = self.combined_area(other)
+        if combined_area < 3 * self.xarea:
+            logi("Combining 'cos: " + yell)
+            return score > 1
+        else:
+            logi("Combined Area too big: {}>3*{}".format(combined_area, self.xarea))
+
+
 class Bantry(Glyph):
     """Class used to process a space seperated line and store the probable
     characters and the respective liklihoods for one glyph.
     """
     scaler = lambda *_: None
     classifier = lambda *_: (("", 0),)
+    ngram = ()
 
     def __init__(self, line_info=None):
         super().__init__(line_info)
@@ -36,23 +117,20 @@ class Bantry(Glyph):
         return super().__str__() + "\n" + self.strlikelies
 
     def combine(self, other):
-        docombine, combined = False, None
         logd("Checking to combine\n{}\n{}".format(self, other))
 
-        # Put checks here
-        if other is Space:
-            return False, None
-
-        if self.best_char == '-' and other.best_char == '-':
-            docombine = True
-
-        if docombine:
+        if do_combine(self, other):
             combined = self + other
             combined.scaled = self.scaler(combined)
             combined.likelies = self.classifier(combined.scaled)
-            logi("Combining\n{}\n{}\n{}".format(self, other, combined))
+            if logger.isEnabledFor(logging.DEBUG):
+                logi("Combining\n{}".format(combined))
+            else:
+                logi("Combining\n{}\n{}\n{}".format(self, other, combined))
 
-        return docombine, combined
+            return True, combined
+        else:
+            return False, None
 
 
 class Space():

@@ -108,11 +108,11 @@ class GramGraph(LineGraph):
             else:
                 raise ValueError("Path not found in graph: {}".format(path))
 
-        if join:
+        if join is not None:
             ret = join.join(ret)
         return ret
 
-    def get_best_apriori_str(self, join=None):
+    def get_best_apriori_str(self, join=""):
         liklihood, most_likely = self.strongest_path()
         return self.get_path_chars(most_likely, join)
 
