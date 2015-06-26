@@ -10,7 +10,6 @@
 import sys
 import pickle
 from collections import defaultdict, Counter
-
 from text2glyphs import process_line
 
 

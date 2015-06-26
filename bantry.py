@@ -19,11 +19,12 @@ def do_combine(self, other):
     ss, st = self.strength(), other.strength()
 
     suspects = ['ఏ', '-', '"', "'", '.', 'ై',]
-    ghpsshh = 'ఘపసషహ'
+    ghpsshh = 'ఘపసషహఎ'
     heads = ['ి', 'ీ', 'ె', 'ే', '✓', '్']
     def is_sharer(c):
         return c[0] in heads or \
-               c is 'ై'
+               c is 'ై' or \
+               c in 'ఖఙజఞణ'
 
     lowprob = np.log(.95)
     vlprob = np.log(.70)

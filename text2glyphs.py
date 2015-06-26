@@ -18,9 +18,14 @@ GHO_STYLE = 'TEL'
 # TELugu, KANnada
 
 # aksh_pattern includes space also
-aksh_pattern = re.compile(r"([ఁ-ఔృౄ])|( )|(([క-హ]్)*[క-హ][ా-ూె-ౌ])|"
-                          r"(([క-హ]్)*[క-హ](?![ా-ూె-్]))|(([క-హ]్)+(?=\s))")
-
+aksh_pattern = re.compile(
+"([ఁ-ఔృౄౢౣ])|"                   # Duals, Vowels
+"([0-9౦-౯])|"                        # Numbers
+"([!(),\-.=?'\"।॥:;%&+<>])|"          # Punctuations
+"( )|"                               # Space
+"(([క-హ]్)*[క-హ][ా-ూె-ౌ])|"     # Compounds
+"(([క-హ]్)*[క-హ](?![ా-ూె-్]))|"  # Compounds in 'a'
+"(([క-హ]్)+(?=\s))")                 # Pollu
 
 def process_two_piecers(akshara):
     """ Process the aksharas that are written in two pieces"""
