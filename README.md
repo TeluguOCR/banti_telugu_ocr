@@ -20,40 +20,40 @@ seperated images like Malayalam, Oriya, Tamil, Kannada, Thai etc.
 
 # Installation Instructions
 
-1) Install python3
+1. Install python3
 
   You might already have it. Just type ```which python3``` and  check. Make sure you also have ```pip3```. Python3.4 comes with ```pip3```. Python3.3 and older need additional installation of ```pip3```.
 
-2) Install ```Theano``` after installing its dependencies. Here are the [General](http://deeplearning.net/software/theano/install.html) and  the 
+2. Install ```Theano``` after installing its dependencies. Here are the [General](http://deeplearning.net/software/theano/install.html) and  the 
 [Ubuntu-specific](http://deeplearning.net/software/theano/install_ubuntu.html#install-ubuntu) instructions. 
 
   You just need to install numpy, scipy, nose etc.
 
-3) Install [Theanet](https://github.com/rakeshvar/theanet) by running the setup.py
+3. Install [Theanet](https://github.com/rakeshvar/theanet) by running the setup.py
 
-4) Clone [telugu_ocr_banti](https://github.com/rakeshvar/telugu_ocr_banti).
+4. Clone [telugu_ocr_banti](https://github.com/rakeshvar/telugu_ocr_banti).
 
-5) Set the following theano flag(s). I just put the following in my .bashrc file.
-```sh
-export THEANO_FLAGS='floatX=float32'
-```
+5. Set the following theano flag(s). I just put the following in my .bashrc file.
+  ```sh
+  export THEANO_FLAGS='floatX=float32'
+  ```
 
-6) Get the required files to load the neural network and the ngram library.
-```sh
-# change to cloned project directory
-mkdir library
-wget http://stanford.edu/~rakesha/banti/library/4hidaux_252611_01.pkl -O library/nn.pkl
-wget http://stanford.edu/~rakesha/banti/library/mega.123.pkl -P library/
-```
+6. Get the required files to load the neural network and the ngram library.
+  ```sh
+  # change to cloned project directory
+  mkdir library
+  wget http://stanford.edu/~rakesha/banti/library/4hidaux_252611_01.pkl -O library/nn.pkl
+  wget http://stanford.edu/~rakesha/banti/library/mega.123.pkl -P library/
+  ```
 
-7) Run the ocr program 
-```sh
-python3 ocr.py sample_images/praasa.box 
-# Run without arguments to see complete list of available arguments.
-```
-    Here you are running on the provided sample image ```praasa.box``` genereated from ```praasa.tif``` (both in the ```sample_images``` directory)
+7. Run the ocr program 
+  ```sh
+  python3 ocr.py sample_images/praasa.box 
+  # Run without arguments to see complete list of available arguments.
+  ```
+  Here you are running on the provided sample image ```praasa.box``` genereated from ```praasa.tif``` (both in the ```sample_images``` directory)
 
-8) To run on your own images.
-Note that ```ocr.py``` accepts only images in the ```.box``` format. These 
-files are genereated by [banti segmenter](https://github.com/rakeshvar/banti). You 
-can install that to genereate box files from your own tiff files.
+8. To run on your own images.
+  Note that ```ocr.py``` accepts only images in the ```.box``` format. These 
+  files are genereated by [banti segmenter](https://github.com/rakeshvar/banti). You 
+  can install that to genereate box files from your own tiff files.
