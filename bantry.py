@@ -179,7 +179,7 @@ class BantryFile():
                 raise ValueError("Line number can not go down.")
 
         self.file_bantries.append(line_bantries)
-        self.num_lines = self.file_bantries[-1][-1].linenum
+        self.num_lines = len(self.file_bantries)
 
         self.text = ""
         for bantries_inline in self.file_bantries:

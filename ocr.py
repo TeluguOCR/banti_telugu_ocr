@@ -67,7 +67,7 @@ with open(asis_fname, 'w', encoding='utf-8') as f:
     f.write(post_process(bf.text))
 
 ############################## Process using ngrams
-ngrammed_lines, notgrammed_lines  = [], []
+ngrammed_lines, notgrammed_lines = [], []
 
 for linenum in range(bf.num_lines):
     print("Line ", linenum)

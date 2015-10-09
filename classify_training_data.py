@@ -50,14 +50,16 @@ def share(data, dtype=theano.config.floatX):
 print(' '.join(sys.argv))
 if len(sys.argv) < 4:
     print('''Usage:
-        {} dataprefix labels.lbl nnetfile.pkl...
+        {} dataprefix labels.lbl (nnetfile.pkl)+
         '''.format(sys.argv[0]))
     sys.exit()
 
-x_data_file = sys.argv[1] + '.images.bz2'
-y_data_file = sys.argv[1] + '.labels.bz2'
-meta_file = sys.argv[1] + '.meta.bz2'
-aux_data_file = sys.argv[1] + '.lines.bz2'
+if not sys.argv[1].endswith('.'):
+    sys.argv[1] += '.'
+x_data_file = sys.argv[1] + 'images.bz2'
+y_data_file = sys.argv[1] + 'labels.bz2'
+meta_file = sys.argv[1] + 'meta.bz2'
+aux_data_file = sys.argv[1] + 'lines.bz2'
 
 codes_file = sys.argv[2]
 neural_net_files = sys.argv[3:]

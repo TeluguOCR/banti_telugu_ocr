@@ -28,7 +28,7 @@ class Classifier():
         logi("OnlyTop {}".format(self.only_top))
 
     def __call__(self, scaled_glp):
-        img = scaled_glp.pix.astype('float32').reshape((1, self.ht, self.ht))
+        img = scaled_glp.pix.astype('float32').reshape((1, 1, self.ht, self.ht))
 
         if self.ntwk.takes_aux():
             dtopbot = scaled_glp.dtop, scaled_glp.dbot

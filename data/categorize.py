@@ -6,10 +6,21 @@ from math import ceil
 from PIL import Image as im
 from scipy.ndimage.interpolation import zoom
 
+
+def normalize(img, make_white):
+    maxx, minn = img.max(), img.min()
+    img -= minn
+    img /= maxx - minn
+    if make_white and np.mean(img) < .5:
+        img = 1 - img
+    return img
+
+
 def tile_raster_images(images,
                        zm=1,
                        mrgn=1,
-                       make_white=False):
+                       make_white=False,
+                       global_normalize=False):
     n_images = images.shape[0]
     im_per_row = n_images // int(np.sqrt(n_images))
     im_per_col = ceil(float(n_images) / im_per_row)
@@ -19,12 +30,13 @@ def tile_raster_images(images,
                  (w*zm + mrgn) * im_per_row - mrgn)
     out_array = np.full(out_shape, 255 if make_white else 0, dtype='uint8')
 
+    if global_normalize:
+        images = normalize(images, make_white)
+
     for i in range(n_images):
         img = images[i]
-        maxx, minn = img.max(), img.min()
-        img = (img - minn)/(maxx - minn)
-        if make_white and np.mean(img) < .5:
-            img = 1 - img
+        if not global_normalize:
+            img = normalize(img, make_white)
         img = zoom(img, zoom=zm, order=0)
         tile_row, tile_col = i // im_per_row, i % im_per_row
         out_array[
