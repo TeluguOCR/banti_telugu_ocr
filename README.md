@@ -25,9 +25,7 @@ seperated images like Malayalam, Oriya, Tamil, Kannada, Thai etc.
   You might already have it. Just type ```which python3``` and  check. Make sure you also have ```pip3```. Python3.4 comes with ```pip3```. Python3.3 and older need additional installation of ```pip3```.
 
 2. Install ```Theano``` after installing its dependencies. Here are the [General](http://deeplearning.net/software/theano/install.html) and  the 
-[Ubuntu-specific](http://deeplearning.net/software/theano/install_ubuntu.html#install-ubuntu) instructions. 
-
-  You just need to install numpy, scipy, nose etc.
+[Ubuntu-specific](http://deeplearning.net/software/theano/install_ubuntu.html#install-ubuntu) instructions. You just need to install numpy, scipy, nose etc.
 
 3. Install [Theanet](https://github.com/rakeshvar/theanet) by running the setup.py
 
