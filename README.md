@@ -29,7 +29,7 @@ seperated images like Malayalam, Oriya, Tamil, Kannada, Thai etc.
 
 3. Install [Theanet](https://github.com/rakeshvar/theanet) by running the setup.py
 
-4. Clone [telugu_ocr_banti](https://github.com/rakeshvar/telugu_ocr_banti).
+4. Clone this repo. ([telugu_ocr_banti](https://github.com/rakeshvar/telugu_ocr_banti))
 
 5. Set the following theano flag(s). I just put the following in my .bashrc file.
   ```sh
@@ -51,7 +51,8 @@ seperated images like Malayalam, Oriya, Tamil, Kannada, Thai etc.
   ```
   Here you are running on the provided sample image ```praasa.box``` genereated from ```praasa.tif``` (both in the ```sample_images``` directory)
 
-8. To run on your own images.
-  Note that ```ocr.py``` accepts only images in the ```.box``` format. These 
-  files are genereated by [banti segmenter](https://github.com/rakeshvar/banti). You 
-  can install that to genereate box files from your own tiff files.
+8. OCRing your own images.
+
+  Note that `ocr.py` accepts only images in the `.box` format. These files are genereated by [banti segmenter](https://github.com/rakeshvar/banti). You can install it to genereate box files from your tiff files.
+  
+  Or you can try to run [this binary](https://stanford.edu/~rakesha/banti/banti_segmenter) that has been built on a 64-bit linux ubuntu machine. (Run it without any arguments to see all options.) 
