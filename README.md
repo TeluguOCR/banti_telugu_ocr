@@ -46,13 +46,23 @@ seperated images like Malayalam, Oriya, Tamil, Kannada, Thai etc.
 
 7. Run the ocr program 
   ```sh
-  python3 ocr.py sample_images/praasa.box 
-  # Run without arguments to see complete list of available arguments.
+  python3 recognize.py sample_images/praasa.box 
+  # Run for help
+  python3 recognize.py -h
   ```
   Here you are running on the provided sample image ```praasa.box``` genereated from ```praasa.tif``` (both in the ```sample_images``` directory)
 
 8. OCRing your own images.
+  ```sh
+  python3 recognize.py sample_images/praasa.tif
+  ```
 
-  Note that `ocr.py` accepts only images in the `.box` format. These files are genereated by [banti segmenter](https://github.com/rakeshvar/banti). You can install it to genereate box files from your tiff files.
+  Note that `recognize.py` needs images in `.box` format. These 
+  files are genereated by [banti segmenter](https://github.com/rakeshvar/banti). 
+  You can install it to genereate box files from your tiff files. Once you 
+  obtain the `banti_segmenter` binary/executable. You can leave that in the 
+  same directory as `recognize.py` or you can pass it as an argument.
+  This will enable `recognize.py` to convert tiff files to box files.
   
-  Or you can try to run [this binary](https://stanford.edu/~rakesha/banti/banti_segmenter) that has been built on a 64-bit linux ubuntu machine. (Run it without any arguments to see all options.) 
+  Alternatively to get box files, you can try to run [this binary]
+  (https://stanford.edu/~rakesha/banti/banti_segmenter) that has been built on a 64-bit linux ubuntu machine. (Run it without any arguments to see all options.) 
