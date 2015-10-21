@@ -209,3 +209,5 @@ elif is_file_of_type(args.input_file_or_dir, 'pdf'):
 
 elif is_file_of_type(args.input_file_or_dir, 'dir'):
     ocr_dir(args.input_file_or_dir)
+
+#convert -compress Group4 -depth 1 -resample 400x400 cv.png cv.tif
