@@ -66,7 +66,7 @@ print()
 ############################# Helper Functions ################################
 import os
 import subprocess
-
+from PIL import Image as im
 
 def change_ext(fname, ext):
     name, _ = os.path.splitext(fname)
@@ -165,7 +165,7 @@ def tiff_dir_to_box(img_dir, banti_segmenter):
             tiff_to_box(banti_segmenter, f)
 
 
-# ###################################### Load OCR
+####################################### Load OCR
 from ocr import OCR
 
 print('Initializing the OCR')
@@ -178,7 +178,7 @@ recognizer = OCR(args.nnet_fname,
 print('Done')
 
 
-# ###################################### Helpers
+####################################### Helpers
 
 def ocr_box_dir(img_dir):
     print('Recognizing box files in ', img_dir)
@@ -193,21 +193,39 @@ def ocr_dir(img_dir):
     tiff_dir_to_box(img_dir, args.banti_segmenter)
     ocr_box_dir(img_dir)
 
-# ###################################### Actual Code
+####################################### Actual Code
 
-if is_file_of_type(args.input_file_or_dir, 'box'):
-    recognizer.ocr_box_file(args.input_file_or_dir)
+inpt = args.input_file_or_dir
 
-elif is_file_of_type(args.input_file_or_dir, 'tif'):
-    box_fname = tiff_to_box(args.banti_segmenter, args.input_file_or_dir)
-    if box_fname:
-        recognizer.ocr_box_file(box_fname)
+if is_file_of_type(inpt, 'box'):
+    recognizer.ocr_box_file(inpt)
 
-elif is_file_of_type(args.input_file_or_dir, 'pdf'):
-    imgs_dir = pdf_to_tiffs(args.input_file_or_dir)
+elif is_file_of_type(inpt, 'pdf'):
+    imgs_dir = pdf_to_tiffs(inpt)
     ocr_dir(imgs_dir)
 
-elif is_file_of_type(args.input_file_or_dir, 'dir'):
-    ocr_dir(args.input_file_or_dir)
+elif is_file_of_type(inpt, 'dir'):
+    ocr_dir(inpt)
 
-#convert -compress Group4 -depth 1 -resample 400x400 cv.png cv.tif
+else:
+    img = im.open(inpt)
+    is_1bpp = img.mode == '1'
+
+    if not is_1bpp:
+        inptiff = change_ext(inpt, 'converted.tif')
+        command = ['convert',
+                   '-units', 'PixelsPerInch',
+                   inpt,
+                   '-compress', 'Group4',
+                   '-depth', '1',
+                   '-resample', '400',
+                   inptiff]
+        succ, _, _ = run_command(command, timeout=10)
+    else:
+        inptiff = inpt
+
+    box_fname = tiff_to_box(args.banti_segmenter, inptiff)
+    if box_fname:
+        recognizer.ocr_box_file(box_fname)
+    else:
+        print("Box file could not be made.")
