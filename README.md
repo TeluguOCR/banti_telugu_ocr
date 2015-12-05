@@ -35,15 +35,6 @@ seperated images like Malayalam, Oriya, Tamil, Kannada, Thai etc.
   ```sh
   export THEANO_FLAGS='floatX=float32'
   ```
-
-6. Get the required files to load the neural network and the ngram library.
-  ```sh
-  # change to cloned project directory
-  mkdir library
-  wget http://stanford.edu/~rakesha/banti/library/4hidaux_252611_01.pkl -O library/nn.pkl
-  wget http://stanford.edu/~rakesha/banti/library/mega.123.pkl -P library/
-  ```
-
 7. Run the ocr program 
   ```sh
   python3 recognize.py sample_images/praasa.box 
