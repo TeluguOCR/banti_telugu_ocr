@@ -1,0 +1,42 @@
+{
+"layers":[
+        ('ElasticLayer', {
+            'translation'   :2,
+            'zoom'          :1.1,
+            'magnitude'     :60,
+            'sigma'         :15,
+            'pflip'         :0.2,
+            'angle'         :5,
+            'nearest'       :True,
+            'invert_image'  :True,
+            }),
+#       ('InputLayer', {
+#           }),
+        ('HiddenLayer', {
+            'n_out'         :2000,
+            'pdrop'         :.5,
+            'actvn'         :'relu20',
+            'reg'           : {'L2':.0, 'maxnorm':5},
+            }),
+        ('HiddenLayer', {
+            'n_out'         :2000,
+            'pdrop'         :.5,
+            'actvn'         :'relu05',
+            'reg'           : {'L2':.0, 'maxnorm':5},
+            }),
+        ('SoftmaxLayer', {
+            'n_out'         :457,
+            }),
+],
+
+"training_params" : {
+    'BATCH_SZ' : 20,
+    'NUM_EPOCHS' : 201,
+    'TRAIN_ON_FRACTION' : .75,
+    'EPOCHS_TO_TEST' : 1,
+    'TEST_SAMP_SZ': 5000,
+
+    'INIT_LEARNING_RATE': .1,
+    'EPOCHS_TO_HALF_RATE':  1,
+},
+}
