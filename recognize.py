@@ -220,7 +220,7 @@ else:
                    '-depth', '1',
                    '-resample', '400',
                    inptiff]
-        succ, _, _ = run_command(command, timeout=10)
+        succ, _, _ = run_command(command, timeout=30)
     else:
         inptiff = inpt
 
