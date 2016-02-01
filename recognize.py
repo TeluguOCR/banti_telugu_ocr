@@ -3,6 +3,7 @@
 ############################### Parse Input Arguments #########################
 import argparse
 import logging
+from banti.ocr import OCR
 
 
 class Formatter(argparse.RawDescriptionHelpFormatter,
@@ -166,8 +167,6 @@ def tiff_dir_to_box(img_dir, banti_segmenter):
 
 
 ####################################### Load OCR
-from ocr import OCR
-
 print('Initializing the OCR')
 recognizer = OCR(args.nnet_fname,
                  args.scaler_fname,
@@ -220,7 +219,7 @@ else:
                    '-depth', '1',
                    '-resample', '400',
                    inptiff]
-        succ, _, _ = run_command(command, timeout=30)
+        succ, _, _ = run_command(command, timeout=10)
     else:
         inptiff = inpt
 
