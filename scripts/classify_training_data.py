@@ -164,7 +164,7 @@ def html(neural_net_file, ntwk,
          cum_err_rate, train_test_errs, avg_time,
          wrongs, counts, errors):
     head = '''<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body>
-<h2>Banti Neural Network Errors</h2>
+<h2>Neural Network Errors</h2>
 Dataset: <font face="monospace" color="blue">{0}</font></br>
 Neural Net: <font face="monospace" color="blue">{1}</font></br></br>
 <h4>Error Rates</h4>

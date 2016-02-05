@@ -1,4 +1,5 @@
 import logging
+from .helpers import get_ext_changer
 
 from .classifier import Classifier
 from .ngram import Ngram
@@ -31,32 +32,32 @@ class OCR():
 
         GramGraph.set_ngram(self.ng)
 
-    def ocr_box_file(self, box_fname):
+    def ocr_file(self, input_fname):
         # Set up the names of output files
-        replace = lambda s: box_fname.replace('.box', s)
+        change_ext = get_ext_changer(input_fname)
 
-        asis_fname = replace('.ml.txt')
-        nogram_out_fname = replace('.nogram.txt')
-        ngram_out_fname = replace('.gram.txt')
+        asis_fname = change_ext('.ml.txt')
+        nogram_out_fname = change_ext('.nogram.txt')
+        ngram_out_fname = change_ext('.gram.txt')
 
-        log_fname = replace('.{}.log'.format(self.loglevelname))
+        log_fname = change_ext('.{}.log'.format(self.loglevelname))
         logging.basicConfig(filename=log_fname,
                             level=self.loglevel,
                             filemode="w")
 
-        # Read Bantries & get Most likely output
+        # Read Processed Glyphs & get Most likely output
         print("Classifing glyphs...")
-        bf = ProcessedPage(box_fname)
+        procd_page = ProcessedPage(input_fname)
         with open(asis_fname, 'w', encoding='utf-8') as f:
-            f.write(post_process(bf.text))
+            f.write(post_process(procd_page.text))
 
         # Process using ngrams
         print("Finding most likely sentences...")
         ngrammed_lines, notgrammed_lines = [], []
-        for linenum in range(bf.num_lines):
+        for linenum in range(procd_page.num_lines):
             print("Line ", linenum)
-            line_bantries = bf.get_line_bantires(linenum)
-            gramgraph = GramGraph(line_bantries)
+            line_pglyphs = procd_page.get_line_glyphs(linenum)
+            gramgraph = GramGraph(line_pglyphs)
             gramgraph.process_tree()
             notgrammed_lines.append(gramgraph.get_best_apriori_str())
             ngrammed_lines.append(gramgraph.get_best_str())
@@ -69,7 +70,7 @@ class OCR():
         with open(ngram_out_fname, 'w', encoding='utf-8') as out_file:
             out_file.write(ngram_out)
 
-        print("Input : ", box_fname)
+        print("Input : ", input_fname)
         print("As is output : ", asis_fname)
         print("Without ngram : ", nogram_out_fname)
         print("With ngram : ", ngram_out_fname)

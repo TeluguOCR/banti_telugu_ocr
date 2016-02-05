@@ -5,7 +5,6 @@
     License : GNU GPL 3.0 or later
 
     This file outputs the trigram for given Telugu corpus.
-    This uses module BantiParser
 """
 import sys
 import pickle

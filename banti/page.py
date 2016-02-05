@@ -9,26 +9,16 @@ from PIL import ImageDraw as imd
 
 import logging
 from scipy.stats import itemfreq
+from .helpers import img_to_bin_arr, bin_arr_to_rgb_img
 from .conncomp import get_conn_comp
 
 logger = logging.getLogger(__name__)
-logi = print  # logger.info
+logi = logger.info
 logd = logger.debug
 
 coarse_limit, coarse_jump = 6, .75
 fine_jump = 1/8
-Width_limit_deskew = 800
-
-
-def img_from_arr(arr):
-    return im.fromarray(255 * (1 - arr).astype("uint8")).convert("RGB")
-
-
-def arr_from_img(img):
-    wd, ht = img.size
-    arr = np.asarray(img.getdata()).reshape((ht, wd))
-    arr //= 255
-    return 1 - arr
+deskew_reduce_width_to = 800
 
 
 class Page():
@@ -37,10 +27,9 @@ class Page():
         self.orig_img = im.open(path)
         self.img = self.orig_img
 
-        self.orig_imgarr = arr_from_img(self.orig_img)
+        self.orig_imgarr = img_to_bin_arr(self.orig_img)
         self.imgarr = self.orig_imgarr
         self.wd, self.ht = self.orig_img.size
-        self.dpi = self.img.info["dpi"]
 
         self.angle, self.fft, self.best_harmonic = [None] * 3
         self.hist, self.gauss_hist, self.d_gauss_hist = [None] * 3
@@ -81,7 +70,7 @@ class Page():
 
         imgarr = self.imgarr
         temp_sizes_str = "Resizing before skew correction: " + str(imgarr.shape)
-        while imgarr.shape[-1] > Width_limit_deskew:
+        while imgarr.shape[-1] > deskew_reduce_width_to:
             imgarr = imgarr[::2, ::2]
             temp_sizes_str += " -> " + str(imgarr.shape)
         logi(temp_sizes_str)
@@ -112,7 +101,7 @@ class Page():
 
         self.imgarr = inter.rotate(self.imgarr, self.angle, reshape=0, order=0)
         self.ht, self.wd = self.imgarr.shape
-        self.img = img_from_arr(self.imgarr)
+        self.img = bin_arr_to_rgb_img(self.imgarr)
         logi("Best Angle: {:.3f}".format(self.angle))
 
     def _calc_hist(self, ):
@@ -287,7 +276,7 @@ class Page():
     def save_words_image_with_hist_and_lines(self, width):
         target_name = self.change_ext("_words.png")
         appended_img = self.get_image_with_hist(width,
-                                                img_from_arr(self.wmorpharr),
+                                                bin_arr_to_rgb_img(self.wmorpharr),
                                                 hist=self.gauss_words_hist)
         self._draw_lines(appended_img).save(target_name)
         print("Saving:", target_name)
@@ -297,30 +286,29 @@ class Page():
         curr_col = 0
 
         for l in self.lines:
-            arr[l.y0:l.y1] = l.labelled_img + curr_col
-            arr[l.y0:l.y1][l.labelled_img==0] = 0
+            arr[l.top:l.bot] = l.labelled_img + curr_col
+            arr[l.top:l.bot][l.labelled_img==0] = 0
             curr_col += l.num_letters
-            arr[l.y0, ::2] = 252
-            arr[l.top_line, ::2] = 253
-            arr[l.base_line, ::2] = 254
+            arr[l.top, ::2] = 252
+            arr[l.topline, ::2] = 253
+            arr[l.baseline, ::2] = 254
 
             for w in l.word_comps:
-              try:
-                y0 = w.y0 + l.y0
-                y1 = w.y1 + l.y0
-                arr[y0, w.x0:w.x1] = 255
-                arr[y1, w.x0:w.x1] = 255
-                arr[y0:y1, w.x0] = 255
-                arr[y0:y1, w.x1] = 255
-              except IndexError:
-                  pass
+                try:
+                    top, bot = w.y + l.top, w.y2 + l.top
+                    arr[top, w.x:w.x2] = 255
+                    arr[bot-1, w.x:w.x2] = 255
+                    arr[top:bot, w.x] = 255
+                    arr[top:bot, w.x2-1] = 255
+                except IndexError:
+                    pass
         arr[self.line_sep[-1], ::2] = 253
 
         target_name = self.change_ext("_letters.png")
         img = im.fromarray(arr, "P")
         palette = np.random.randint(256, size=(256 * 3)).tolist()
         palette[:3] = 255, 255, 255
-        palette[-12:] = 0, 0, 255, 128, 128, 128, 128, 128, 128, 128, 128, 128
+        palette[-12:] = 0, 0, 255, 128, 128, 128, 128, 128, 128, 180, 180, 180
         img.putpalette(palette)
         img.save(target_name)
         print("Saving: ", target_name)
@@ -328,22 +316,23 @@ class Page():
 
 class Line():
     def __init__(self, page, num):
-        logi("Initializing line :", num)
+        logi("Initializing line : {}".format(num))
         self.page = page
-        self.num = num
-        self.y0, self.y1 = page.line_sep[num:num+2]
-        self.ht = self.y1 - self.y0
-        self.top_line = page.top_lines[num]
-        self.base_line = page.base_lines[num]
-        self.arr = page.imgarr[self.y0:self.y1]
-        self.xht = self.base_line - self.top_line
+        self.linenum = num
+        self.top, self.bot = page.line_sep[num:num+2]
+        self.ht = self.bot - self.top
+        self.topline = page.top_lines[num]
+        self.baseline = page.base_lines[num]
+        self.arr = page.imgarr[self.top:self.bot]
+        self.xht = self.baseline - self.topline
         self.num_words = 0
         self.num_letters = 0
 
         self.find_letters()
         self.find_words()
+        self.align_letters_to_words()
         self.sanity_check()
-        logi(self)
+        logi(str(self))
 
     def find_words(self):
         logi("Finding words.")
@@ -377,19 +366,29 @@ class Line():
     def sanity_check(self):
         self.word_support = np.zeros(self.page.wd).astype("uint")
         for w in self.word_comps:
-            self.word_support[w.x0:w.x1] += 1
-        logi(itemfreq(self.word_support)[2:])
+            self.word_support[w.x:w.x2] += 1
+        logi(str(itemfreq(self.word_support)[2:]))
 
     def __str__(self):
         return "Line:{}" \
                "\nFrom:{} Top:{} Base:{} To:{}" \
                "\nHt:{} Xht:{}" \
                "\nWords:{} Letters:{}".format(
-            self.num, self.y0, self.top_line, self.base_line, self.y1,
+            self.linenum, self.top, self.topline, self.baseline, self.bot,
             self.ht, self.xht, self.num_words, self.num_letters)
 
-
-class Blob():
-    def __init__(self, arr, word_id):
-        self.arr = arr
-        self.word_id = word_id
+    def align_letters_to_words(self):
+        for letter in self.letters:
+            letter.linenum = self.linenum
+            letter.baseline = self.baseline - self.top
+            letter.topline = self.topline - self.top
+            for wordnum, word in enumerate(self.word_comps):
+                if letter in word:
+                    letter.wordnum = wordnum
+                    break
+            else:
+                for wordnum, word in enumerate(self.word_comps):
+                    if word.has_center_of(letter):
+                        letter.wordnum = wordnum
+                else:
+                    raise ValueError("Could not find word for {}".format(letter))

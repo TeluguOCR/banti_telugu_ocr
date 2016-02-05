@@ -7,24 +7,23 @@ from PIL import Image as im
 import numpy as np
 from theanet.neuralnet import NeuralNet
 
-
-
-############################################# Arguments
 from banti.iast_unicodes import LabelToUnicodeConverter
 from banti.scaler import ScalerFactory
-from banti.proglyph import ProGlyph
+from banti.proglyph import ProGlyph, Space
 from banti.processedpage import ProcessedPage
+
+############################################# Arguments
 
 if len(sys.argv) < 5:
     print("Usage:"
-    "\n{0} neuralnet_params.pkl banti_output.box scaler_params.scl codes.lbl "
+    "\n{0} neuralnet_params.pkl inpt.box/tiff scaler_params.scl codes.lbl "
     "\n\te.g:- {0} 0default.pkl sample_images/praasa.box "
     "scalings/relative48.scl labellings/alphacodes.lbl"
     "".format(sys.argv[0]))
     sys.exit()
 
 nnet_prms_file_name = sys.argv[1]
-banti_file_name = sys.argv[2]
+input_file_name = sys.argv[2]
 scaler_prms_file = sys.argv[3]
 labelings_file_name = sys.argv[4]
 
@@ -44,7 +43,7 @@ chars = LabelToUnicodeConverter(labellings).onecode
 
 ############################################# Init Network
 ProGlyph.scaler = ScalerFactory(scaler_prms)
-bf = ProcessedPage(banti_file_name)
+procd_page = ProcessedPage(input_file_name)
 
 nnet_prms['training_params']['BATCH_SZ'] = 1
 ntwk = NeuralNet(**nnet_prms)
@@ -56,6 +55,7 @@ if not os.path.exists(dir_name):
     os.makedirs(dir_name)
 namer = (dir_name + '{:03d}_{}_{:02d}.png').format
 print("Look for me in :", dir_name)
+
 
 def saver(outs, ch, debug=True):
     saver.index += 1
@@ -89,12 +89,12 @@ saver.index = 0
 
 ############################################# Read glyphs & classify
 print("Classifying...")
-for line_bantries in bf.file_bantries:
-    for bantree in line_bantries:
-        if bantree is Space:
+for line_pglyphs in procd_page.file_glyphs:
+    for pglyph in line_pglyphs:
+        if pglyph is Space:
             continue
 
-        scaled_glp = bantree.scaled
+        scaled_glp = pglyph.scaled
         img = scaled_glp.pix.astype('float32').reshape((1,)+scaled_glp.pix.shape)
 
         if ntwk.takes_aux():

@@ -3,7 +3,6 @@
 ############################### Parse Input Arguments #########################
 import argparse
 import logging
-from banti.ocr import OCR
 
 
 class Formatter(argparse.RawDescriptionHelpFormatter,
@@ -13,7 +12,7 @@ class Formatter(argparse.RawDescriptionHelpFormatter,
 desc = '''Telugu OCR
     Performs OCR on a given tif, box or pdf file. Or a directory with files.
     Tiff file should be 1bpp (i.e. encoded in binary).
-    box file is the output of banti_segmenter.
+    box file is the output of antanci_segmenter.
     pdf will be converted to tiff files.
     examples:
          python3 {0} ~/books/andhra_maha.pdf
@@ -35,19 +34,14 @@ prsr.add_argument('-l', action='store', dest='labels_fname',
 prsr.add_argument('-g', action='store', dest='ngram_fname',
                   default='library/mega.123.pkl',
                   help='The nGram dictionaries')
-prsr.add_argument('-b', action='store', dest='banti_segmenter',
-                  default='./banti_segmenter',
-                  help='The binary that convers tiff files to box files.')
 prsr.add_argument('--calib', action='store', dest='calibration', type=float,
                   default=1,
-                  help='The correction that needs to be applied to '
-                       'the nnet\'s outputs')
+                  help='The correction that needs to be applied to the nnet\'s outputs')
 prsr.add_argument('--log', action='store', dest='log_level',
                   default='info',
                   help='Level of logging: debug, info, critical etc.')
 prsr.add_argument('input_file_or_dir', action='store',
-                  help='Can be pdf, tiff, or box file. Or a directory full of '
-                       'tiff or box files.')
+                  help='Can be pdf, tiff, or box file. Or a directory full of image or box files.')
 
 args = prsr.parse_args()
 
@@ -67,36 +61,6 @@ print()
 ############################# Helper Functions ################################
 import os
 import subprocess
-from PIL import Image as im
-
-def change_ext(fname, ext):
-    name, _ = os.path.splitext(fname)
-    if ext[0] != '.':
-        ext = '.' + ext
-
-    return name + ext
-
-
-def is_file_of_type(fname, ext):
-    if ext == 'tif':
-        checks = '.tif', '.tiff', '.TIF', '.TIFF'
-
-    elif ext == 'box':
-        checks = '.box', '.BOX'
-
-    elif ext == 'pdf':
-        checks = '.pdf', '.PDF'
-
-    elif ext == 'dir':
-        return os.path.isdir(fname)
-
-    else:
-        raise ValueError('Unknown extension', ext)
-
-    for e in checks:
-        if fname.endswith(e):
-            return True
-    return False
 
 
 def run_command(command, timeout=0, prinout=True):
@@ -148,25 +112,8 @@ def pdf_to_tiffs(infile):
     run_command(gscommand)
     return img_dir
 
-
-def tiff_to_box(banti_segmenter, f):
-    succ, _, _ = run_command([banti_segmenter, f], timeout=10)
-
-    if succ:
-        return change_ext(f, '.box')
-
-
-def tiff_dir_to_box(img_dir, banti_segmenter):
-    print('Converting tiff images in', img_dir, 'to box files.')
-    for f in sorted(os.listdir(img_dir)):
-        if not is_file_of_type(f, 'tif'):
-            continue
-        f = os.path.join(img_dir, f)
-        if not os.path.exists(change_ext(f, '.box')):
-            tiff_to_box(banti_segmenter, f)
-
-
 ####################################### Load OCR
+from banti.ocr import OCR
 print('Initializing the OCR')
 recognizer = OCR(args.nnet_fname,
                  args.scaler_fname,
@@ -174,57 +121,42 @@ recognizer = OCR(args.nnet_fname,
                  args.ngram_fname,
                  args.calibration,
                  args.log_level)
-print('Done')
+print('\t OCR initialized.')
 
-
-####################################### Helpers
-
-def ocr_box_dir(img_dir):
-    print('Recognizing box files in ', img_dir)
-    for f in sorted(os.listdir(img_dir)):
-        if is_file_of_type(f, 'box'):
-            f = os.path.join(img_dir, f)
-            print('OCRing', f)
-            recognizer.ocr_box_file(f)
-
-
-def ocr_dir(img_dir):
-    tiff_dir_to_box(img_dir, args.banti_segmenter)
-    ocr_box_dir(img_dir)
 
 ####################################### Actual Code
+import glob
+from banti.helpers import is_file_of_type, change_ext
 
-inpt = args.input_file_or_dir
+def ocr_pattern(pattern):
+    for inpt in glob.glob(pattern):
+        print("*" * 60)
+        print("PROCESSING", inpt)
 
-if is_file_of_type(inpt, 'box'):
-    recognizer.ocr_box_file(inpt)
+        if is_file_of_type(inpt, 'pdf'):
+            imgs_dir = pdf_to_tiffs(inpt)
+            ocr_pattern(imgs_dir + "/*")
 
-elif is_file_of_type(inpt, 'pdf'):
-    imgs_dir = pdf_to_tiffs(inpt)
-    ocr_dir(imgs_dir)
+        elif is_file_of_type(inpt, 'box'):
+            recognizer.ocr_file(inpt)
 
-elif is_file_of_type(inpt, 'dir'):
-    ocr_dir(inpt)
+        elif is_file_of_type(inpt, 'image'):
+            recognizer.ocr_file(inpt)
 
-else:
-    img = im.open(inpt)
-    is_1bpp = img.mode == '1'
+        else:
+            print("\tNot an image file.")
 
-    if not is_1bpp:
-        inptiff = change_ext(inpt, 'converted.tif')
-        command = ['convert',
-                   '-units', 'PixelsPerInch',
-                   inpt,
-                   '-compress', 'Group4',
-                   '-depth', '1',
-                   '-resample', '400',
-                   inptiff]
-        succ, _, _ = run_command(command, timeout=10)
-    else:
-        inptiff = inpt
+ocr_pattern(args.input_file_or_dir)
 
-    box_fname = tiff_to_box(args.banti_segmenter, inptiff)
-    if box_fname:
-        recognizer.ocr_box_file(box_fname)
-    else:
-        print("Box file could not be made.")
+###################################################
+def to_tiff(inpt):
+    inptiff = change_ext(inpt, 'converted.tif')
+    command = ['convert',
+               '-units', 'PixelsPerInch',
+               inpt,
+               '-compress', 'Group4',
+               '-depth', '1',
+               '-resample', '400',
+               inptiff]
+    succ, _, _ = run_command(command, timeout=10)
+

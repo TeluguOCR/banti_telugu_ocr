@@ -37,8 +37,8 @@ class PathNode():
 class GramGraph(LineGraph):
     ngram = lambda *_: 0
 
-    def __init__(self, line_bantries):
-        super().__init__(line_bantries)
+    def __init__(self, line_pglyphs):
+        super().__init__(line_pglyphs)
         self.paths_till = defaultdict(dict)  # paths_till[node]['a', 'b']
                                              # second key is a tuple/list of length ngram.n-1
 
@@ -61,12 +61,12 @@ class GramGraph(LineGraph):
             logd("Gramming root {}".format(node))
 
         else:
-            for parent, bantry in self.lparents[node]:
+            for parent, pglyph in self.lparents[node]:
                 paths_till_parent = self.find_top_ngram_paths(parent)
-                logi(bantry.strlikelies)
+                logi(pglyph.strlikelies)
 
                 for ppn_key, ppn in paths_till_parent.items():
-                    for char, likli in bantry.likelies:
+                    for char, likli in pglyph.likelies:
                         prior = self.ngram(ppn_key + (char,))
                         pn = ppn + PathNode(likli, prior, (char,))
                         if pn.key in self.paths_till[node]:
@@ -104,9 +104,9 @@ class GramGraph(LineGraph):
     def get_path_chars(self, path, join=None):
         ret = []
         for i in range(len(path)-1):
-            for child, bantry in self.lchildren[path[i]]:
+            for child, pglyph in self.lchildren[path[i]]:
                 if child == path[i+1]:
-                    ret.append(bantry.best_char)
+                    ret.append(pglyph.best_char)
                     break
             else:
                 raise ValueError("Path not found in graph: {}".format(path))

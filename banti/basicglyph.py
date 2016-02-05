@@ -1,15 +1,4 @@
-import numpy as np
-
-
-def shade(val):
-    vals = 0, .15, .35, .65, .85
-    rets = '- .oO#'
-
-    for value, ret in zip(vals, rets):
-        if val < value:
-            return ret
-    else:
-        return '+'
+from .helpers import arr_to_ascii_art, img_to_bin_arr
 
 
 class BasicGlyph():
@@ -35,8 +24,7 @@ class BasicGlyph():
         self.dbot = dbot
         self.wd, self.ht = self.img.size
         self.xht = self.ht + self.dtop - self.dbot
-        self.pix = np.array(img.convert('1').getdata(), np.uint8)
-        self.pix = 1 - (self.pix.reshape((self.ht, self.wd)) / 255.)
+        self.pix = img_to_bin_arr(img)
 
     def init_from_img_dtop_dbot_pairs(self, img, dtopbot_pairs):
         """
@@ -48,15 +36,7 @@ class BasicGlyph():
         self.dtopbot_pairs = dtopbot_pairs
 
     def __str__(self):
-        ret = '-' * (self.wd + 2) + '\n'
-
-        for r in range(self.ht):
-            ret += '|'
-            for c in range(self.wd):
-                ret += shade(self.pix[r, c])
-            ret += '|\n'
-
-        ret += '-' * (self.wd + 2) + '\n'
+        ret = arr_to_ascii_art(self.pix)
         ret += 'size:({}, {}) xht:{} dtop:{} dbot:{}'.format(
             self.wd, self.ht,
             round(self.xht, 1),

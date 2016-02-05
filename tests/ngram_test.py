@@ -30,4 +30,4 @@ for text in txt:
     for i in range(len(text)):
         prior += ngram(text[:i])
 
-    print(prior)
+    print(prior, text)

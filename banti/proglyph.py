@@ -11,8 +11,8 @@ logd = logger.debug
 def do_combine(self, other):
     """
 
-    :param Bantry self:
-    :param Bantry other:
+    :param ProGlyph self:
+    :param ProGlyph other:
 0    :return:
     """
     score, yell = 0, ""
@@ -96,9 +96,9 @@ class ProGlyph(Glyph):
     classifier = lambda *_: (("", 0),)
     ngram = ()
 
-    def __init__(self, line_info=None):
-        super().__init__(line_info)
-        if line_info:
+    def __init__(self, info=None):
+        super().__init__(info)
+        if info:
             self.scaled = self.scaler(self)
             self.likelies = self.classifier(self.scaled)
             logd("Initialized\n{}".format(self))

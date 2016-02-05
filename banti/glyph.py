@@ -4,7 +4,8 @@ import logging
 import numpy as np
 from PIL import Image as im
 
-from banti.basicglyph import BasicGlyph
+from .basicglyph import BasicGlyph
+from .conncomp import Component
 
 logger = logging.getLogger(__name__)
 logi = logger.info
@@ -12,30 +13,47 @@ logd = logger.debug
 
 
 class Glyph():
-    def __init__(self, line_info=None):
+    def __init__(self, info=None):
         """
 
-        :param line_info: x, y, ht, wd, etc.
-        :type line_info: str or list
+        :param info: x, y, ht, wd, etc.
+        :type info: str or list
         """
-        if type(line_info) is str:
-            self.init_from_str(line_info)
+        if type(info) is str:
+            self.init_from_box_6pack_str(info)
 
-        elif type(line_info) is list:
-            self.init_from_list(line_info)
+        elif type(info) is list:
+            self.init_from_box_6pack_list(info)
+
+        elif info is None:
+            self.init_from_box_6pack_list(['', 0, 0, 0, 0, 0, 0, 0, 0, None])
+
+        elif type(info) is Component:
+            self.init_from_component(info)
 
         else:
-            self.init_from_list(['', 0, 0, 0, 0, 0, 0, 0, 0, None])
+            raise NotImplementedError("Did not understand info: {}".format(info))
 
-    def init_from_str(self, line_info):
+    def init_from_component(self, comp):
+        self.text = ""
+        self.x, self.y, self.wd, self.ht = comp.x, comp.y, comp.wd, comp.ht
+        self.baseline, self.topline = comp.baseline, comp.topline
+        self.linenum, self.wordnum = comp.linenum, comp.wordnum
+        self.sixpack = ""
+
+        self.fix_x2_y2()
+        self.fix_dtop_dbot_xht()
+        self.set_pix(comp.pix)
+
+    def init_from_box_6pack_str(self, line_info):
         line_info = line_info.rstrip().split()
         for i, val in enumerate(line_info):
             if 0 < i < 9:
                 line_info[i] = int(val)
 
-        self.init_from_list(line_info)
+        self.init_from_box_6pack_list(line_info)
 
-    def init_from_list(self, box_list):
+    def init_from_box_6pack_list(self, box_list):
         self.text, self.x, self.y, self.wd, self.ht, \
         self.baseline, self.topline, \
         self.linenum, self.wordnum, \
