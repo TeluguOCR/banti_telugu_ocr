@@ -10,15 +10,20 @@ class Formatter(argparse.RawDescriptionHelpFormatter,
     pass
 
 desc = '''Telugu OCR
-    Performs OCR on a given tif, box or pdf file. Or a directory with files.
-    Tiff file should be 1bpp (i.e. encoded in binary).
-    box file is the output of antanci_segmenter.
-    pdf will be converted to tiff files.
+    Performs OCR on a given image(s) and box/pdf file(s).
+      Image files should of sufficient resolution to work well.
+      One bit per pixel (binary) TIFF images work best.
+      box files are the output of antanci_ocr.
+      pdf will be converted to tiff files.
+      File matching patterns should be in quotes.
     examples:
+         python3 {0} "~/books/andhra*.tif"
+         python3 {0} "~/books/*.box"
          python3 {0} ~/books/andhra_maha.pdf
          python3 {0} ~/books/andhra_maha1.tif
          python3 {0} ~/books/andhra_maha1.box
-         python3 {0} ~/books/andhra_maha/'''.format(__file__)
+         python3 {0} "~/books/andhra_maha/*"
+  '''.format(__file__)
 
 prsr = argparse.ArgumentParser(description=desc, formatter_class=Formatter)
 
@@ -41,7 +46,7 @@ prsr.add_argument('--log', action='store', dest='log_level',
                   default='info',
                   help='Level of logging: debug, info, critical etc.')
 prsr.add_argument('input_file_or_dir', action='store',
-                  help='Can be pdf, tiff, or box file. Or a directory full of image or box files.')
+                  help='Can be pdf, tiff, or box file. Or a pattern in quotes.')
 
 args = prsr.parse_args()
 
