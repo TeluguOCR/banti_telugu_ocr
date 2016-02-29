@@ -20,28 +20,33 @@ seperated images like Malayalam, Oriya, Tamil, Kannada, Thai etc.
 
 # Installation Instructions
 
-1. Install python3
+1. Use python3
 
-  You might already have it. Just type ```which python3``` and  check. Make sure you also have ```pip3```. Python3.4 comes with ```pip3```. Python3.3 and older need additional installation of ```pip3```.
+  You should already have it. Just type `which python3` and  check. You will also be using `pip3`. Python3.4 comes with `pip3`. Python3.3 and older need additional installation of `pip3`. We recommend you upgrade to `python3.4`
 
-2. Install ```Theano``` after installing its dependencies. Here are the [General](http://deeplearning.net/software/theano/install.html) and  the 
-[Ubuntu-specific](http://deeplearning.net/software/theano/install_ubuntu.html#install-ubuntu) instructions. You just need to install numpy, scipy, nose etc.
+2. Install `Theano` after installing its dependencies. Here are the [General](http://deeplearning.net/software/theano/install.html) and  the 
+[Ubuntu-specific](http://deeplearning.net/software/theano/install_ubuntu.html#install-ubuntu) instructions. But they are given for `python2.7`. For `python3.4` you will need to put at `3` in a few places. like this...
+  ```
+  sudo apt-get install python3-numpy python3-scipy python3-dev python3-pip python3-nose g++ libopenblas-dev git
+  sudo pip install Theano
+  ```
 
-3. Install [Theanet](https://github.com/rakeshvar/theanet) by running the setup.py
+3. Install [Theanet](https://github.com/rakeshvar/theanet) by running `python3 setup.py`.
 
 4. Clone this repo. ([banti_telugu_ocr](https://github.com/TeluguOCR/banti_telugu_ocr))
 
 5. Set the following theano flag(s). I just put the following in my .bashrc file.
-  ```sh
-  export THEANO_FLAGS='floatX=float32'
-  ```
+        ```sh
+        export THEANO_FLAGS='floatX=float32'
+        ```
+
 7. Run the ocr program 
-  ```sh
-  python3 recognize.py sample_images/praasa.box 
-  # Run for help
-  python3 recognize.py -h
-  ```
-  Here you are running on the provided sample image ```praasa.box``` genereated from ```praasa.tif``` (both in the ```sample_images``` directory)
+        ```sh
+        python3 recognize.py sample_images/praasa.box 
+        # Run for help
+        python3 recognize.py -h
+        ```
+  Here you are running on the provided sample image `praasa.box` genereated from `praasa.tif` (both in the `sample_images` directory)
 
 8. OCRing your own images.
   ```sh
