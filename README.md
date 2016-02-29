@@ -36,16 +36,17 @@ seperated images like Malayalam, Oriya, Tamil, Kannada, Thai etc.
 4. Clone this repo. ([banti_telugu_ocr](https://github.com/TeluguOCR/banti_telugu_ocr))
 
 5. Set the following theano flag(s). I just put the following in my .bashrc file.
-        ```sh
-        export THEANO_FLAGS='floatX=float32'
-        ```
+  ```sh
+  export THEANO_FLAGS='floatX=float32'
+  ```
 
 7. Run the ocr program 
-        ```sh
-        python3 recognize.py sample_images/praasa.box 
-        # Run for help
-        python3 recognize.py -h
-        ```
+  ```sh
+  python3 recognize.py sample_images/praasa.box 
+  # Run for help
+  python3 recognize.py -h
+  ```
+  
   Here you are running on the provided sample image `praasa.box` genereated from `praasa.tif` (both in the `sample_images` directory)
 
 8. OCRing your own images.
