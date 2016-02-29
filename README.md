@@ -24,8 +24,7 @@ seperated images like Malayalam, Oriya, Tamil, Kannada, Thai etc.
 
   You should already have it. Just type `which python3` and  check. You will also be using `pip3`. Python3.4 comes with `pip3`. Python3.3 and older need additional installation of `pip3`. We recommend you upgrade to `python3.4`
 
-2. Install dependencies. ([General](http://deeplearning.net/software/theano/install.html) and   
-[Ubuntu-specific](http://deeplearning.net/software/theano/install_ubuntu.html#install-ubuntu) instructions. But they are given for `python2.7`. For `python3.4` you will need to put at `3` in a few places.)
+2. Install dependencies. ([General](http://deeplearning.net/software/theano/install.html) and [Ubuntu-specific](http://deeplearning.net/software/theano/install_ubuntu.html#install-ubuntu) instructions. But they are given for `python2.7`. For `python3.4` you will need to put at `3` in a few places.)
   ```
   sudo apt-get install python3-numpy python3-scipy python3-dev python3-pip python3-nose 
   sudo apt-get install g++ libopenblas-dev git
