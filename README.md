@@ -20,28 +20,24 @@ seperated images like Malayalam, Oriya, Tamil, Kannada, Thai etc.
 
 # Installation Instructions
 
-1. Use python3
+### Notes
+1. These instructions are tailored to Ubuntu. You should make changes based on your OS.
+2. Use python3. You should already have it. Just type `which python3` and  check. You will also be using `pip3`. Python3.4 comes with `pip3`. Python3.3 and older need additional installation of `pip3`. We recommend you upgrade to Python3.4.
 
-  You should already have it. Just type `which python3` and  check. You will also be using `pip3`. Python3.4 comes with `pip3`. Python3.3 and older need additional installation of `pip3`. We recommend you upgrade to `python3.4`
-
-2. Install dependencies. ([General](http://deeplearning.net/software/theano/install.html) and [Ubuntu-specific](http://deeplearning.net/software/theano/install_ubuntu.html#install-ubuntu) instructions. But they are given for `python2.7`. For `python3.4` you will need to put at `3` in a few places.)
-  ```
+### Dependencies
+1. Install Theano after its dependencies. [General](http://deeplearning.net/software/theano/install.html) and [Ubuntu-specific](http://deeplearning.net/software/theano/install_ubuntu.html#install-ubuntu) instructions. But they are given for `python2.7`. For `python3.4` you will need to put at `3` in a few places. like such...
+  ```sh
   sudo apt-get install python3-numpy python3-scipy python3-dev python3-pip python3-nose 
   sudo apt-get install g++ libopenblas-dev git
   sudo pip3 install --upgrade --no-deps git+git://github.com/Theano/Theano.git
   ```
 
-3. Install [Pillow](https://pillow.readthedocs.org) as
-  ```
-  suo pip3 install Pillow
-  ```
-
-3. Install latest version of Theano.
-  ```
-  sudo pip3 install --upgrade --no-deps git+git://github.com/Theano/Theano.git
+2. Install [Pillow](https://pillow.readthedocs.org) as
+  ```sh
+  sudo pip3 install Pillow
   ```
 
-3. Install [Theanet](https://github.com/rakeshvar/theanet) by running 
+3. Install [Theanet](https://github.com/rakeshvar/theanet) as 
   ```sh
   git clone git@github.com:rakeshvar/theanet.git
   cd theanet
