@@ -63,7 +63,7 @@ seperated images like Malayalam, Oriya, Tamil, Kannada, Thai etc.
   
   You can also use other image formats as
   ```sh
-  python3 recognize.py sample_images/praasa.jpg
+  python3 recognize.py <path_to_your_image>.[jpg|png|...]
   ```
   To see full options and get help run
   ```sh
