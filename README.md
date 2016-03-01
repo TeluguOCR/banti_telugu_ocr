@@ -41,11 +41,20 @@ seperated images like Malayalam, Oriya, Tamil, Kannada, Thai etc.
   sudo pip3 install --upgrade --no-deps git+git://github.com/Theano/Theano.git
   ```
 
-3. Install [Theanet](https://github.com/rakeshvar/theanet) by running `python3 setup.py`.
+3. Install [Theanet](https://github.com/rakeshvar/theanet) by running 
+  ```sh
+  git clone git@github.com:rakeshvar/theanet.git
+  cd theanet
+  sudo python3 setup.py install 
+  ```
 
 4. Clone this repo. ([banti_telugu_ocr](https://github.com/TeluguOCR/banti_telugu_ocr))
+  ```sh
+  git clone git@github.com:TeluguOCR/banti_telugu_ocr.git
+  cd banti_telugu_ocr
+  ```
 
-5. Set the following theano flag(s). I just put the following in my .bashrc file.
+5. Set the following theano flag(s). (I just put the following in my .bashrc file.)
   ```sh
   export THEANO_FLAGS='floatX=float32'
   ```
