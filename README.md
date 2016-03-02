@@ -73,5 +73,3 @@ seperated images like Malayalam, Oriya, Tamil, Kannada, Thai etc.
    ```sh
   python3 recognize.py sample_images/praasa.box 
   ```
-  
-  Here you are running on the provided sample image `praasa.box` genereated from `praasa.tif` (both in the `sample_images` directory)
