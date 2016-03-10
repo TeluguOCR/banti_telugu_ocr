@@ -13,10 +13,8 @@ from collections import defaultdict
 import numpy as np
 from PIL import Image
 
-from glyph import BasicGlyph
-from scaler import ScalerFactory
-
-
+from banti.basicglyph import BasicGlyph
+from banti.scaler import ScalerFactory
 
 ################################### Process Files & Dirs #####################
 

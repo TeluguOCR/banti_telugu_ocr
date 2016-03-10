@@ -11,6 +11,7 @@ from banti.iast_unicodes import LabelToUnicodeConverter
 from banti.scaler import ScalerFactory
 from banti.proglyph import ProGlyph, Space
 from banti.processedpage import ProcessedPage
+from scripts.tile import tile_raster_images
 
 ############################################# Arguments
 

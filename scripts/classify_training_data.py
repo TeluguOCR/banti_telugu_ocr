@@ -29,7 +29,7 @@ import numpy as np
 import theano
 
 from theanet.neuralnet import NeuralNet
-from iast_unicodes import LabelToUnicodeConverter
+from banti.iast_unicodes import LabelToUnicodeConverter
 
 # ############################################# Helpers
 
