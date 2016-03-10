@@ -139,7 +139,7 @@ class Page():
         inpeak = False
         min_dist_in_peak = self.best_harmonic / 2.0
         self.base_lines = []
-        logd("Max Hist: {:.2f} Peakthresh: {:.2f} Zerothresh: {:.2f} Min Dist in Peak: {:.2f}"
+        logi("Max Hist: {:.2f} Peakthresh: {:.2f} Zerothresh: {:.2f} Min Dist in Peak: {:.2f}"
              "".format(gmaxval, peakthresh, zerothresh, min_dist_in_peak))
 
         for irow, val in enumerate(d_hist):
@@ -149,32 +149,33 @@ class Page():
                     maxval = val
                     maxloc = irow
                     mintosearch = irow + min_dist_in_peak
-                    logd('\ntransition to in-peak: mintosearch : ', mintosearch, end='')
-                    # accept no zeros between i and i+mintosearch
+                    logd('\tTransition to in-peak:{} mintosearch:{} '
+                         ''.format(irow, mintosearch))
+                        # accept no zeros between i and i+mintosearch
 
             else:  # in peak, look for max
                 if val > maxval:
                     maxval = val
                     maxloc = irow
                     mintosearch = irow + min_dist_in_peak
-                    logd('\nMoved mintosearch to', mintosearch, end='')
+                    logd('\tMoved mintosearch:{}'.format(mintosearch))
+
                 elif irow > mintosearch and val <= zerothresh:
                     # leave peak and save the last baseline found
                     inpeak = False
-                    logd('\nFound baseline #', maxloc, end='')
+                    logd('\nLeaving peak with baseline at:{}'.format(maxloc))
                     self.base_lines.append(maxloc)
-
-            logd(' @{}'.format(irow), end='')
 
         if inpeak:
             self.base_lines.append(maxloc)
-            logd('\nFound baseline #', maxloc, end='')
+            logd('\nLast baseline at:{}'.format(maxloc))
 
         self.num_lines = len(self.base_lines)
         logi("Number of lines found {}".format(self.num_lines))
         logd("Base_lines:{}".format(self.base_lines))
 
     def _separate_lines(self, ):
+        logi("Finding Toplines and line separations.")
         self.top_lines = []
         try:
             self.line_sep = [np.where(self.gauss_hist[0:self.base_lines[0]] == 0)[0][-1]]
@@ -184,16 +185,15 @@ class Page():
         for ibase, base in enumerate(self.base_lines):
             # Find top lines
             frm = 0 if ibase == 0 else self.line_sep[ibase]
-            logd(" Searching for top line in range : ", frm, base)
             top_at = np.argmin(self.d_gauss_words_hist[frm:base])
             self.top_lines.append(frm + top_at)
-            logd(" Top at: ", top_at, frm + top_at)
 
             # Find line separation
             to = self.base_lines[ibase + 1] if ibase + 1 < self.num_lines else self.ht
             sep_at = np.argmin(self.gauss_hist[base + 1:to])
             self.line_sep.append(base + 1 + sep_at)
-            logd(" Line Sep at ", sep_at, base + 1 + sep_at)
+            logd("\t{:2d}) Baselines ({:4d}, {:4d}) Topline:{:4d} Separation:{:4d}"
+                 "".format(ibase, frm, base, self.top_lines[-1], self.line_sep[-1]))
 
         self.lines = [Line(self, iline) for iline in range(self.num_lines)]
 

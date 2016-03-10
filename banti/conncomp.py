@@ -46,8 +46,8 @@ def get_conn_comp(imgarr, sort=True):
     slices = meas.find_objects(labelled_image)
     components = []
 
-    for islice, slice in enumerate(slices):
-        components.append(Component(labelled_image, slice, islice+1))
+    for islice, slaiss in enumerate(slices):
+        components.append(Component(labelled_image, slaiss, islice+1))
 
     if sort:
         components = sorted(components)
