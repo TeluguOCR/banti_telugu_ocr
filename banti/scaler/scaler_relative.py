@@ -30,7 +30,13 @@ class Relative():
         # Scale!
         new_wd = int(scale * glp.wd)
         new_ht = int(scale * glp.ht)
-        scaled_img = glp.img.resize((new_wd, new_ht))
+        if (new_wd > 0) and (new_ht > 0):
+            scaled_img = glp.img.resize((new_wd, new_ht))
+        else:
+            scaled_img = glp.img
+            scale = 1
+            new_wd = glp.wd
+            new_ht = glp.ht
 
         # Place the scaled image in correct location
         move2x = p.WD_MARGIN + (p.WIDTH - new_wd)//2
