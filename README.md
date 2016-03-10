@@ -20,7 +20,15 @@ seperated images like Malayalam, Oriya, Tamil, Kannada, Thai etc.
 
 # Installation Instructions
 
-### Notes
+### Using Docker Image
+Easiest method is to ``pull`` the pre-built image from [Docker hub](https://hub.docker.com/r/chprasad/banti_telugu_ocr/) and ``run`` in a container. You can do this with the following commands.
+
+1. ``docker pull chprasad/banti_telugu_ocr:20160310``
+2. ``docker run -it chprasad/banti_telugu_ocr:20160310 /bin/bash``
+
+If you do not have Docker on your machine, you can set that up first with instrictions available from [Docker](https://www.docker.com/) documentation. 
+
+### Manual Installation
 1. These instructions are tailored to Ubuntu. You should make changes based on your OS.
 2. Use python3. You should already have it. Just type `which python3` and  check. You will also be using `pip3`. Python3.4 comes with `pip3`. Python3.3 and older need additional installation of `pip3`. We recommend you upgrade to Python3.4.
 
