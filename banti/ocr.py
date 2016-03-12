@@ -1,5 +1,7 @@
 import logging
 from .helpers import get_ext_changer
+from .helpers import default_nnet_fname, default_scaler_fname
+from .helpers import default_labels_fname, default_ngram_fname
 
 from .classifier import Classifier
 from .ngram import Ngram
@@ -12,10 +14,10 @@ from .processedpage import ProcessedPage
 
 class OCR():
     def __init__(self,
-                 nnet_fname,
-                 scaler_fname,
-                 labels_fname,
-                 ngram_fname,
+                 nnet_fname = default_nnet_fname(),
+                 scaler_fname = default_scaler_fname(),
+                 labels_fname = default_labels_fname(),
+                 ngram_fname = default_ngram_fname(),
                  logbase=1,
                  loglevel=logging.INFO,):
         self.nnet_fname = nnet_fname
@@ -75,3 +77,5 @@ class OCR():
         print("Without ngram : ", nogram_out_fname)
         print("With ngram : ", ngram_out_fname)
         print("Log : ", log_fname)
+        
+        return ngram_out
