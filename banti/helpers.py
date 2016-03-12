@@ -87,3 +87,15 @@ def shade(val):
             return ret
 
     return '+'
+
+def default_nnet_fname():
+    return os.path.join(os.path.split(__file__)[0], "../library/nn.pkl")
+
+def default_scaler_fname():
+    return os.path.join(os.path.split(__file__)[0], "../scalings/relative48.scl")
+
+def default_labels_fname():
+    return os.path.join(os.path.split(__file__)[0], "../labellings/alphacodes.lbl")
+
+def default_ngram_fname():
+    return os.path.join(os.path.split(__file__)[0], "../library/mega.123.pkl")
