@@ -339,6 +339,7 @@ class Line():
         brick_ht = self.median_ht // 3 + 1
         brick_wd = self.median_wd // 2 + 1
         horz_buffer = np.zeros((self.ht, brick_wd))
+        # print("Line ", self.linenum, (self.ht, brick_wd), (self.median_ht, self.median_wd))
         logi("Dialating vertically by {}. Closing Horz by {}".format(brick_ht, brick_wd))
 
         # Dilate Vertically
@@ -360,8 +361,8 @@ class Line():
     def find_letters(self):
         self.letters, self.labelled_img = get_conn_comp(self.arr)
         hts, wds = zip(*[(c.ht, c.wd) for c in self.letters])
-        self.median_ht = stats.median(hts)
-        self.median_wd = stats.median(wds)
+        self.median_ht = int(stats.median(hts))
+        self.median_wd = int(stats.median(wds))
 
     def sanity_check(self):
         self.word_support = np.zeros(self.page.wd).astype("uint")
