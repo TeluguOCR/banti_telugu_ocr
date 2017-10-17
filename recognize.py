@@ -164,4 +164,3 @@ def to_tiff(inpt):
                '-resample', '400',
                inptiff]
     succ, _, _ = run_command(command, timeout=10)
-
