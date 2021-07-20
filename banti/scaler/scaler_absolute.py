@@ -8,6 +8,7 @@ class Bunch(object):
         assert 'NMTOP' in adict
         assert 'NMBOT' in adict
         assert 'NMXWD' in adict
+        assert 'NMWID' in adict
 
         assert 'BUFLEFT' in adict
         assert 'BUFTOP' in adict
@@ -41,11 +42,11 @@ class Absolute:
 
         # Find where the image should be moved
         #   (centered and adjusted to baseline)
-        move2x = 0 if new_wd >= p.NMXWD else (p.NMXWD - new_wd) // 2
+        move2x = max(0, (p.TOTWD-new_wd)//2)
         scaldb = int(scale * glp.dbot)
         move2y = p.NMTOP + p.NMXHT - (new_ht - scaldb)
 
         img2 = Image.new("L", (p.TOTWD, p.TOTHT), "white")
-        img2.paste(scaled_img, (p.BUFLEFT + move2x, p.BUFTOP + move2y))
+        img2.paste(scaled_img, (move2x, p.BUFTOP + move2y))
 
         return BasicGlyph((img2, -p.BUFTOP-p.NMTOP, p.BUFBOT+p.NMBOT))

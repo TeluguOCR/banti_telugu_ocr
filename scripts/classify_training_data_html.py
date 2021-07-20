@@ -22,6 +22,7 @@ import os
 import pickle
 import sys
 import time
+import traceback
 from collections import defaultdict
 from PIL import Image
 
@@ -72,14 +73,16 @@ chars = LabelToUnicodeConverter(codes).onecode
 ############################################## Load Data
 print("Loading data files...")
 x_data = read_json_bz2(x_data_file)
+if x_data.ndim == 3:
+    x_data = np.expand_dims(x_data, axis=1)
 y_data = read_json_bz2(y_data_file)
 meta_data = read_json_bz2(meta_file)
 try:
     aux = share(read_json_bz2(aux_data_file))
 except FileNotFoundError:
-    pass
+    aux = None
 
-x_data_int = x_data.astype(np.uint8)
+x_data_int = x_data[:, 0].astype(np.uint8)
 x = share(x_data)
 y = share(y_data, 'int32')
 n_samples = x_data.shape[0]
@@ -140,7 +143,7 @@ def test_on_network(neural_net_file):
         cum_err_rate, *train_test_errs))
 
     ####################### Speed Check
-    n_time_bathces = 100
+    n_time_bathces = min(100, n_batches)
     print("Checking speed: ", end="")
     start = time.time()
     for ibatch in range(n_time_bathces):
@@ -240,3 +243,4 @@ for nnfile in neural_net_files:
         raise
     except:
         print("Unexpected error:", sys.exc_info()[0])
+        traceback.print_exc()

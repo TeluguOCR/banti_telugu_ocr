@@ -24,7 +24,7 @@ def do_combine(self, other):
     heads = ['ి', 'ీ', 'ె', 'ే', '✓', '్']
 
     def is_sharer(c):
-        return c[0] in heads or c is 'ై' or c in 'ఖఙజఞణ'
+        return c[0] in heads or c == 'ై' or c in 'ఖఙజఞణ'
 
     lowprob = np.log(.95)
     vlprob = np.log(.70)

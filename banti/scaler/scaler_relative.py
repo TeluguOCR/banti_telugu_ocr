@@ -51,3 +51,29 @@ class Relative():
         new_dbot = glp.dbot * scalef - move2y + p.TOTHT - new_ht
 
         return BasicGlyph((img2, new_dtop, new_dbot))
+
+    def get_scaled_dtop_dbot(self, glp):
+        p = self.params
+
+        # Find the amount to scale by
+        rel_sizes = (float(glp.wd)/p.WIDTH,
+                     float(glp.ht)/p.HEIGHT,
+                     float(glp.xht)/p.XHEIGHT)
+        scale = 1 / max(rel_sizes)
+
+        # Scale!
+        new_wd = int(scale * glp.wd)
+        new_ht = int(scale * glp.ht)
+        if not ((new_wd > 0) and (new_ht > 0)):
+            new_wd = glp.wd
+            new_ht = glp.ht
+
+        # Place the scaled image in correct location
+        move2y = p.HT_MARGIN + (p.HEIGHT - new_ht)//2
+
+        # Update Image
+        scalef = float(new_ht)/glp.ht
+        new_dtop = glp.dtop * scalef - move2y
+        new_dbot = glp.dbot * scalef - move2y + p.TOTHT - new_ht
+
+        return new_dtop, new_dbot

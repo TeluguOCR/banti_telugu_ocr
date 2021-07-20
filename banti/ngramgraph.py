@@ -25,7 +25,7 @@ class PathNode():
     def __add__(self, other):
         return PathNode(self.likli + other.likli,
                         self.prior + other.prior,
-                        self.chars + other.chars)
+                        self.chars + other.idx2unic)
 
     def __str__(self):
         return "{} L{:.3f}+R{:.3f}=T{:.3f}".format('|'.join(self.chars),
@@ -99,7 +99,7 @@ class GramGraph(LineGraph):
         return top
 
     def get_best_str(self, join=""):
-        return join.join(self.top_final_pathnode.chars)
+        return join.join(self.top_final_pathnode.idx2unic)
 
     def get_path_chars(self, path, join=None):
         ret = []
