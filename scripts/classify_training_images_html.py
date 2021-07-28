@@ -173,8 +173,6 @@ def process_root_dir(root_dir):
         label = iast2idx[glp_dir.name]
 
         for glyph in glp_dir.getter():
-            if "Suguna" in glyph.in_path:
-                continue
             glyph.label = label
             yield glyph
 
@@ -300,11 +298,10 @@ Neural Net: <font face="monospace" color="blue">{neural_net_file}</font></br></b
 ###################################### Process all NNfiles
 
 
-for nnfileorpattern in neural_net_files:
-    for nnfile in glob.glob(nnfileorpattern):
-        try:
-            ret = test_on_network(nnfile)
-            html(**ret)
-        except:
-            print(f"Failed to process {nnfile}")
-            print_exc()
+for nnfile in neural_net_files:
+    try:
+        ret = test_on_network(nnfile)
+        html(**ret)
+    except:
+        print(f"Failed to process {nnfile}")
+        print_exc()
