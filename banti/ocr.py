@@ -77,5 +77,5 @@ class OCR():
         print("Without ngram : ", nogram_out_fname)
         print("With ngram : ", ngram_out_fname)
         print("Log : ", log_fname)
-        
+
         return ngram_out

@@ -4,6 +4,7 @@ import statistics as stats
 
 from scipy.ndimage import interpolation as inter
 from scipy import ndimage as nd
+from PIL import ImageChops
 from PIL import Image as im
 from PIL import ImageDraw as imd
 
@@ -24,7 +25,7 @@ deskew_reduce_width_to = 800
 class Page():
     def __init__(self, path):
         self.path = path
-        self.orig_img = im.open(path)
+        self.orig_img = self.trim(im.open(path))
         self.img = self.orig_img
 
         self.orig_imgarr = img_to_bin_arr(self.orig_img)
@@ -49,6 +50,16 @@ class Page():
         self._calc_hist()
         self._find_baselines()
         self._separate_lines()
+
+    def trim(self, img):
+        bg = im.new(img.mode, img.size, img.getpixel((0, 0)))
+        diff = ImageChops.difference(img, bg)
+        bbox = diff.getbbox()
+        if bbox:
+            trimmed_img = img.crop(bbox)
+        else:
+            trimmed_img = img
+        return trimmed_img
 
     def _filter_noise(self, ):
         logi("Filtering Noise")
