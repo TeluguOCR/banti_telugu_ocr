@@ -34,7 +34,6 @@ class ProcessedPage():
                 line_glyphs.append(e)
             self.file_glyphs.append(line_glyphs)
 
-
     def _init_from_box_file(self, name):
         in_file = open(name)
         iword, iline, line_glyphs = 0, 0, []
